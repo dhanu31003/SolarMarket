@@ -1,14 +1,12 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import connectDB from '@/lib/db/mongodb';
-import { Product } from '@/lib/models/Product';
-import mongoose from 'mongoose';
+import { Product, Company } from '@/lib/models/Product';
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     
-    // Parse query parameters
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '12');
     const search = searchParams.get('search') || '';
@@ -20,7 +18,6 @@ export async function GET(request: Request) {
     
     await connectDB();
 
-    // Build query
     const query: any = {};
     
     if (search) {
@@ -45,17 +42,14 @@ export async function GET(request: Request) {
       };
     }
 
-    // Calculate skip value for pagination
     const skip = (page - 1) * limit;
 
-    // Fetch products with pagination
     const products = await Product.find(query)
       .populate('company', 'name logo')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
-    // Get total count for pagination
     const total = await Product.countDocuments(query);
 
     return NextResponse.json({
@@ -80,25 +74,29 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const session = await getServerSession();
-    
-    // Commented out authorization check temporarily
-    /*if (!session?.user?.role || session.user.role !== 'admin') {
-      return NextResponse.json(
-        { message: 'Unauthorized - Admin access required' },
-        { status: 401 }
-      );
-    }*/
-
     await connectDB();
     const data = await request.json();
 
-    // Create a temporary company ID
-    const tempCompanyId = new mongoose.Types.ObjectId();
+    // First, create or find the company
+    let company = await Company.findOne({ name: data.company });
+    
+    if (!company) {
+      company = await Company.create({
+        name: data.company,
+        description: `Manufacturer of ${data.name}`,
+        location: 'India', // Default location
+        contactInfo: {
+          email: 'contact@example.com', // Default email
+          phone: '1234567890', // Default phone
+          address: 'India' // Default address
+        }
+      });
+    }
 
-    // Prepare product data
+    // Prepare product data with the actual company reference
     const productData = {
       ...data,
-      company: tempCompanyId,
+      company: company._id,
       specifications: {
         ...data.specifications,
         weight: data.specifications.weight || 0,
@@ -113,10 +111,10 @@ export async function POST(request: Request) {
       stock: Number(data.stock)
     };
 
-    // Create new product
     const product = await Product.create(productData);
+    const populatedProduct = await Product.findById(product._id).populate('company', 'name logo');
 
-    return NextResponse.json(product, { status: 201 });
+    return NextResponse.json(populatedProduct, { status: 201 });
   } catch (error: any) {
     console.error('Error creating product:', error);
     return NextResponse.json(
@@ -129,15 +127,6 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   try {
     const session = await getServerSession();
-    
-    // Commented out authorization check temporarily
-    /*if (!session?.user?.role || session.user.role !== 'admin') {
-      return NextResponse.json(
-        { message: 'Unauthorized - Admin access required' },
-        { status: 401 }
-      );
-    }*/
-
     await connectDB();
     const data = await request.json();
     const { id, ...updateData } = data;
@@ -168,15 +157,6 @@ export async function PUT(request: Request) {
 export async function DELETE(request: Request) {
   try {
     const session = await getServerSession();
-    
-    // Commented out authorization check temporarily
-    /*if (!session?.user?.role || session.user.role !== 'admin') {
-      return NextResponse.json(
-        { message: 'Unauthorized - Admin access required' },
-        { status: 401 }
-      );
-    }*/
-
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 

@@ -1,8 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { Trash2 } from 'lucide-react';
+
+interface Company {
+  _id: string;
+  name: string;
+}
 
 export default function AddProductPage() {
   const router = useRouter();
@@ -12,8 +18,11 @@ export default function AddProductPage() {
       router.push('/auth/signin');
     },
   });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [features, setFeatures] = useState<string[]>(['']);
 
   const [productData, setProductData] = useState({
     name: '',
@@ -38,27 +47,41 @@ export default function AddProductPage() {
     installationAvailable: true
   });
 
+  // Fetch companies
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const response = await fetch('/api/companies');
+        const data = await response.json();
+        setCompanies(data);
+      } catch (error) {
+        console.error('Error fetching companies:', error);
+      }
+    };
+    fetchCompanies();
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    // Convert string values to numbers
     const formattedData = {
-        ...productData,
-        price: Number(productData.price),
-        specifications: {
-          ...productData.specifications,
-          wattage: Number(productData.specifications.wattage),
-          weight: Number(productData.specifications.weight),
-          dimensions: {
-            length: Number(productData.specifications.dimensions.length),
-            width: Number(productData.specifications.dimensions.width),
-            height: Number(productData.specifications.dimensions.height),
-          }
-        },
-        stock: Number(productData.stock),
-      };  
+      ...productData,
+      price: Number(productData.price),
+      specifications: {
+        ...productData.specifications,
+        wattage: Number(productData.specifications.wattage),
+        weight: Number(productData.specifications.weight),
+        dimensions: {
+          length: Number(productData.specifications.dimensions.length),
+          width: Number(productData.specifications.dimensions.width),
+          height: Number(productData.specifications.dimensions.height),
+        }
+      },
+      stock: Number(productData.stock),
+      features: features.filter(feature => feature.trim() !== '')
+    };
 
     try {
       const response = await fetch('/api/products', {
@@ -66,8 +89,7 @@ export default function AddProductPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include',
-        body: JSON.stringify(productData),
+        body: JSON.stringify(formattedData),
       });
 
       const data = await response.json();
@@ -81,6 +103,25 @@ export default function AddProductPage() {
       setError(error.message || 'Error adding product');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFeatureChange = (index: number, value: string) => {
+    const newFeatures = [...features];
+    newFeatures[index] = value;
+    setFeatures(newFeatures);
+    // Add a new empty feature field if we're editing the last one
+    if (index === features.length - 1 && value.trim() !== '') {
+      setFeatures([...newFeatures, '']);
+    }
+  };
+
+  const removeFeature = (index: number) => {
+    const newFeatures = features.filter((_, i) => i !== index);
+    if (newFeatures.length === 0) {
+      setFeatures(['']);
+    } else {
+      setFeatures(newFeatures);
     }
   };
 
@@ -139,7 +180,8 @@ export default function AddProductPage() {
                   onChange={(e) => setProductData({...productData, company: e.target.value})}
                   className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
-                />
+                >
+                </input>
               </div>
 
               <div>
@@ -154,6 +196,33 @@ export default function AddProductPage() {
                   required
                 />
               </div>
+            </div>
+          </div>
+
+          {/* Features */}
+          <div className="space-y-6">
+            <h2 className="text-2xl font-semibold text-gray-900 pb-2 border-b">Features</h2>
+            <div className="space-y-4">
+              {features.map((feature, index) => (
+                <div key={index} className="flex gap-2">
+                  <input
+                    type="text"
+                    value={feature}
+                    onChange={(e) => handleFeatureChange(index, e.target.value)}
+                    placeholder="Enter a feature"
+                    className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  {index !== features.length - 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeFeature(index)}
+                      className="p-2 text-red-500 hover:text-red-700"
+                    >
+                      <Trash2 className="h-5 w-5" />
+                    </button>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
 
@@ -224,7 +293,7 @@ export default function AddProductPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Warranty (years)
+                  Warranty
                 </label>
                 <input
                   type="text"
@@ -330,7 +399,7 @@ export default function AddProductPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
                 Stock
               </label>
               <input

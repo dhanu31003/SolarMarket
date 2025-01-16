@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ScaleIcon, Zap, Clock, Shield, ShoppingCart, BarChart2 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { ScaleIcon, Zap, Clock, Shield, ShoppingCart, BarChart2, Trash2 } from 'lucide-react';
 
 interface Product {
   _id: string;
@@ -35,10 +36,12 @@ interface Product {
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { data: session } = useSession();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -51,13 +54,14 @@ export default function ProductDetailPage() {
 
         const response = await fetch(`/api/products/${params.id}`);
         if (!response.ok) {
-          throw new Error('Failed to fetch product');
+          const data = await response.json();
+          throw new Error(data.message || 'Failed to fetch product');
         }
 
         const data = await response.json();
         setProduct(data);
-      } catch (err) {
-        setError('Error loading product');
+      } catch (err: any) {
+        setError(err.message || 'Error loading product');
         console.error('Error:', err);
       } finally {
         setLoading(false);
@@ -66,6 +70,39 @@ export default function ProductDetailPage() {
 
     fetchProduct();
   }, [params.id]);
+
+  const handleDelete = async () => {
+    if (!confirm('Are you sure you want to delete this product?')) {
+      return;
+    }
+
+    setDeleteLoading(true);
+    setError(null);
+    
+    try {
+      const response = await fetch(`/api/products/${params.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to delete product');
+      }
+
+      router.push('/products');
+      router.refresh();
+    } catch (error: any) {
+      setError(error.message || 'Failed to delete product');
+      console.error('Error deleting product:', error);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -95,8 +132,30 @@ export default function ProductDetailPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {error && (
+          <div className="mb-4">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
+              <span className="block sm:inline">{error}</span>
+            </div>
+          </div>
+        )}
+
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
+            {/* Admin Actions */}
+            {session?.user?.role === 'admin' && (
+              <div className="col-span-2 flex justify-end space-x-4">
+                <button
+                  onClick={handleDelete}
+                  disabled={deleteLoading}
+                  className="flex items-center px-4 py-2 text-white bg-red-500 rounded-lg hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Trash2 className="w-5 h-5 mr-2" />
+                  {deleteLoading ? 'Deleting...' : 'Delete Product'}
+                </button>
+              </div>
+            )}
+
             {/* Image Gallery */}
             <div className="space-y-4">
               <div className="relative pt-[75%] bg-gray-100 rounded-lg overflow-hidden">
@@ -140,10 +199,12 @@ export default function ProductDetailPage() {
                   </p>
                   <p className="text-sm text-gray-500">Inclusive of all taxes</p>
                 </div>
-                <button className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center gap-2">
-                  <ShoppingCart className="w-5 h-5" />
-                  Add to Cart
-                </button>
+                <div className="flex gap-2">
+                  <button className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center gap-2">
+                    <ShoppingCart className="w-5 h-5" />
+                    Add to Cart
+                  </button>
+                </div>
               </div>
 
               {/* Key Features */}
@@ -162,8 +223,25 @@ export default function ProductDetailPage() {
                   </div>
                   <p className="text-lg font-semibold">{product.specifications?.efficiency || 'N/A'}</p>
                 </div>
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Shield className="w-5 h-5" />
+                    <span>Warranty</span>
+                  </div>
+                  <p className="text-lg font-semibold">{product.specifications?.warranty || 'N/A'}</p>
+                </div>
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Clock className="w-5 h-5" />
+                    <span>Installation</span>
+                  </div>
+                  <p className="text-lg font-semibold">
+                    {product.installationAvailable ? 'Available' : 'Not Available'}
+                  </p>
+                </div>
               </div>
 
+              {/* Description */}
               {product.description && (
                 <div className="prose prose-sm max-w-none">
                   <p className="text-gray-600">{product.description}</p>
@@ -172,11 +250,11 @@ export default function ProductDetailPage() {
             </div>
           </div>
 
-          {/* Specifications */}
+          {/* Features and Specifications */}
           <div className="border-t border-gray-200 p-8">
-            <h2 className="text-2xl font-bold mb-4">Specifications</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-4">
+                <h2 className="text-2xl font-bold mb-4">Specifications</h2>
                 <div>
                   <h3 className="font-semibold text-gray-900">Physical Specifications</h3>
                   <dl className="mt-2 space-y-2">
@@ -198,17 +276,15 @@ export default function ProductDetailPage() {
 
               {product.features && product.features.length > 0 && (
                 <div className="space-y-4">
-                  <div>
-                    <h3 className="font-semibold text-gray-900">Features</h3>
-                    <ul className="mt-2 space-y-2">
-                      {product.features.map((feature, index) => (
-                        <li key={index} className="flex items-center gap-2">
-                          <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  <h2 className="text-2xl font-bold mb-4">Features</h2>
+                  <ul className="space-y-2">
+                    {product.features.map((feature, index) => (
+                      <li key={index} className="flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
             </div>

@@ -1,10 +1,10 @@
-import NextAuth from 'next-auth';
+import type { AuthOptions, User as AuthUser } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import { User } from '@/lib/models/User';
 import connectDB from '@/lib/db/mongodb';
 
-const handler = NextAuth({
+export const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -12,7 +12,7 @@ const handler = NextAuth({
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials) {
+      async authorize(credentials): Promise<AuthUser | null> {
         if (!credentials?.email || !credentials?.password) {
           throw new Error('Please enter email and password');
         }
@@ -68,15 +68,13 @@ const handler = NextAuth({
       return session;
     }
   },
+  pages: {
+    signIn: '/auth/signin',
+  },
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  pages: {
-    signIn: '/auth/signin',
-  },
   secret: process.env.NEXTAUTH_SECRET,
   debug: true // Enable debug logs in development
-});
-
-export { handler as GET, handler as POST };
+};
