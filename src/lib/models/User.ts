@@ -7,6 +7,19 @@ export interface IUser {
   role: 'user' | 'admin' | 'company';
   orders?: mongoose.Types.ObjectId[];
   savedProducts?: mongoose.Types.ObjectId[];
+  cart: {
+    items: Array<{
+      productId: mongoose.Types.ObjectId;
+      quantity: number;
+      name: string;
+      price: number;
+      image: string;
+      specifications: {
+        wattage: number;
+      };
+    }>;
+    total: number;
+  };
   address?: {
     street?: string;
     city?: string;
@@ -25,19 +38,43 @@ const userSchema = new mongoose.Schema<IUser>({
   email: { 
     type: String, 
     required: true, 
-    unique: true,  // This will create the index
+    unique: true,
     lowercase: true
   },
   password: {
     type: String,
     required: [true, 'Please provide a password'],
     minlength: [6, 'Password should be at least 6 characters'],
-    select: false // This ensures password isn't returned in queries by default
+    select: false
   },
   role: {
     type: String,
     enum: ['user', 'admin', 'company'],
     default: 'user'
+  },
+  cart: {
+    items: [{
+      productId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product',
+        required: true
+      },
+      quantity: {
+        type: Number,
+        required: true,
+        min: 1
+      },
+      name: String,
+      price: Number,
+      image: String,
+      specifications: {
+        wattage: Number
+      }
+    }],
+    total: {
+      type: Number,
+      default: 0
+    }
   },
   orders: [{
     type: mongoose.Schema.Types.ObjectId,
@@ -54,16 +91,15 @@ const userSchema = new mongoose.Schema<IUser>({
     pincode: String
   }
 }, {
-  timestamps: true, // Automatically add createdAt and updatedAt fields
+  timestamps: true,
   toJSON: { 
     transform: function(doc, ret) {
-      delete ret.password; // Ensure password is never sent to client
+      delete ret.password;
       return ret;
     }
   }
 });
 
-// Don't create the model if it already exists
 export const User = mongoose.models.User || mongoose.model<IUser>('User', userSchema);
 
 export default User;

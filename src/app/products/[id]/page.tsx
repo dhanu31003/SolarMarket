@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { ScaleIcon, Zap, Clock, Shield, ShoppingCart, BarChart2, Trash2 } from 'lucide-react';
+import { useCart } from '@/contexts/CartContext';
 
 interface Product {
   _id: string;
@@ -37,6 +38,7 @@ export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { data: session } = useSession();
+  const { addItem } = useCart();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -70,6 +72,21 @@ export default function ProductDetailPage() {
 
     fetchProduct();
   }, [params.id]);
+
+  const handleAddToCart = () => {
+    if (product) {
+      addItem({
+        _id: product._id,
+        name: product.name || 'Unnamed Product',
+        price: product.price || 0,
+        image: product.images?.[0] || '/placeholder.jpg',
+        specifications: {
+          wattage: product.specifications?.wattage || 0
+        }
+      });
+      alert('Product added to cart!');
+    }
+  };
 
   const handleDelete = async () => {
     if (!confirm('Are you sure you want to delete this product?')) {
@@ -200,7 +217,10 @@ export default function ProductDetailPage() {
                   <p className="text-sm text-gray-500">Inclusive of all taxes</p>
                 </div>
                 <div className="flex gap-2">
-                  <button className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center gap-2">
+                  <button 
+                    onClick={handleAddToCart}
+                    className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center gap-2"
+                  >
                     <ShoppingCart className="w-5 h-5" />
                     Add to Cart
                   </button>

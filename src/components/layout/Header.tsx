@@ -1,12 +1,17 @@
-'use client';  // Add this at the top
+'use client';
 
 import React from 'react';
 import { Sun, ShoppingCart, User, Menu } from 'lucide-react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
+import { useCart } from '@/contexts/CartContext';
 
 const Header = () => {
   const { data: session } = useSession();
+  const { state } = useCart();
+
+  // Add a null check for state and state.items
+  const cartItemCount = state?.items?.length || 0;
 
   return (
     <header className="bg-white shadow-sm">
@@ -36,9 +41,14 @@ const Header = () => {
 
           {/* Right Section */}
           <div className="flex items-center space-x-4">
-            <button className="text-gray-600 hover:text-gray-900">
+            <Link href="/cart" className="text-gray-600 hover:text-gray-900 relative">
               <ShoppingCart className="h-6 w-6" />
-            </button>
+              {cartItemCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartItemCount}
+                </span>
+              )}
+            </Link>
             {session ? (
               <button 
                 onClick={() => signOut()}
