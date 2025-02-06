@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { ScaleIcon, Zap, Clock, Shield, ShoppingCart, BarChart2, Trash2 } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
+import { Pencil } from 'lucide-react';
 
 interface Product {
   _id: string;
@@ -161,16 +162,23 @@ export default function ProductDetailPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
             {/* Admin Actions */}
             {session?.user?.role === 'admin' && (
-              <div className="col-span-2 flex justify-end space-x-4">
-                <button
-                  onClick={handleDelete}
-                  disabled={deleteLoading}
-                  className="flex items-center px-4 py-2 text-white bg-red-500 rounded-lg hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Trash2 className="w-5 h-5 mr-2" />
-                  {deleteLoading ? 'Deleting...' : 'Delete Product'}
-                </button>
-              </div>
+                <div className="col-span-2 flex justify-end space-x-4">
+                    <button
+                    onClick={() => router.push(`/admin/products/edit/${params.id}`)}
+                    className="flex items-center px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600"
+                    >
+                    <Pencil className="w-5 h-5 mr-2" />
+                    Edit Product
+                    </button>
+                    <button
+                    onClick={handleDelete}
+                    disabled={deleteLoading}
+                    className="flex items-center px-4 py-2 text-white bg-red-500 rounded-lg hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                    <Trash2 className="w-5 h-5 mr-2" />
+                    {deleteLoading ? 'Deleting...' : 'Delete Product'}
+                    </button>
+                </div>
             )}
 
             {/* Image Gallery */}

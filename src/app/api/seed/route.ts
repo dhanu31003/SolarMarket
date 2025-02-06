@@ -1,4 +1,3 @@
-// src/app/api/seed/route.ts
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db/mongodb';
 import { Product } from '@/lib/models/Product';
@@ -10,33 +9,45 @@ const sampleCompanies = [
     description: "Leading solar manufacturer in India",
     logo: "/company-logos/tata.png",
     location: "Mumbai, India",
+    rating: 0,
+    reviews: [],
     contactInfo: {
       email: "contact@tatapower.com",
       phone: "+91-1234567890",
       address: "Mumbai, Maharashtra"
-    }
+    },
+    certifications: [],
+    status: "active"
   },
   {
     name: "Tata Solar",
     description: "Premium solar panel manufacturer",
     logo: "/company-logos/adani.png",
     location: "Ahmedabad, India",
+    rating: 0,
+    reviews: [],
     contactInfo: {
       email: "contact@adanisolar.com",
       phone: "+91-9876543210",
       address: "Ahmedabad, Gujarat"
-    }
+    },
+    certifications: [],
+    status: "active"
   },
   {
     name: "Adani Solar",
     description: "Premier solar panel manufacturer",
     logo: "/company-logos/adani.png",
     location: "Ahmedabad, India",
+    rating: 0,
+    reviews: [],
     contactInfo: {
       email: "contact@adanisolar.com",
       phone: "+91-9876543210",
       address: "Ahmedabad, Gujarat"
-    }
+    },
+    certifications: [],
+    status: "active"
   }
 ];
 

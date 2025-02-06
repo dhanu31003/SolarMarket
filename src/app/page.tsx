@@ -1,5 +1,6 @@
 // src/app/page.tsx
 import { Sun, Battery, Award, Zap } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -14,9 +15,12 @@ export default function Home() {
             <p className="text-xl text-gray-600 mb-8">
               Compare and buy solar panels from India's top manufacturers
             </p>
-            <button className="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-blue-700 transition-colors">
+            <Link 
+              href="/products" 
+              className="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-blue-700 transition-colors"
+            >
               Explore Products
-            </button>
+            </Link>
           </div>
         </div>
       </section>

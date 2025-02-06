@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Trash2, Upload, X } from 'lucide-react';
 
@@ -10,8 +10,9 @@ interface Company {
   name: string;
 }
 
-export default function AddProductPage() {
+export default function EditProductPage() {
   const router = useRouter();
+  const params = useParams();
   const { data: session, status } = useSession({
     required: true,
     onUnauthenticated() {
@@ -25,6 +26,7 @@ export default function AddProductPage() {
   const [features, setFeatures] = useState<string[]>(['']);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
 
   const [productData, setProductData] = useState({
     name: '',
@@ -43,14 +45,43 @@ export default function AddProductPage() {
       weight: '0'
     },
     description: '',
-    features: [''],
     stock: '',
-    images: [] as string[],
     installationAvailable: true
   });
 
-  // Fetch companies
   useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const response = await fetch(`/api/products/${params.id}`);
+        const data = await response.json();
+        
+        if (!response.ok) throw new Error(data.message || 'Failed to fetch product');
+        
+        setProductData({
+          ...data,
+          company: data.company?._id || '',
+          price: data.price?.toString() || '',
+          specifications: {
+            ...data.specifications,
+            wattage: data.specifications?.wattage?.toString() || '',
+            dimensions: {
+              length: data.specifications?.dimensions?.length?.toString() || '',
+              width: data.specifications?.dimensions?.width?.toString() || '',
+              height: data.specifications?.dimensions?.height?.toString() || '',
+            },
+            weight: data.specifications?.weight?.toString() || '0'
+          },
+          stock: data.stock?.toString() || ''
+        });
+        
+        setFeatures(data.features || ['']);
+        setExistingImages(data.images || []);
+      } catch (error) {
+        console.error('Error fetching product:', error);
+        setError('Failed to fetch product details');
+      }
+    };
+
     const fetchCompanies = async () => {
       try {
         const response = await fetch('/api/companies');
@@ -60,60 +91,57 @@ export default function AddProductPage() {
         console.error('Error fetching companies:', error);
       }
     };
-    fetchCompanies();
-  }, []);
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (params.id) {
+      fetchProduct();
+      fetchCompanies();
+    }
+  }, [params.id]);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
 
     const newFiles = Array.from(files);
     setImageFiles(prev => [...prev, ...newFiles]);
 
-    // Create preview URLs for the images
     const urls = newFiles.map(file => URL.createObjectURL(file));
     setImageUrls(prev => [...prev, ...urls]);
   };
 
-  const removeImage = (index: number) => {
-    setImageFiles(prev => prev.filter((_, i) => i !== index));
-    setImageUrls(prev => {
-      // Revoke the URL to prevent memory leaks
-      URL.revokeObjectURL(prev[index]);
-      return prev.filter((_, i) => i !== index);
-    });
+  const removeImage = (index: number, type: 'new' | 'existing') => {
+    if (type === 'new') {
+      URL.revokeObjectURL(imageUrls[index]);
+      setImageFiles(prev => prev.filter((_, i) => i !== index));
+      setImageUrls(prev => prev.filter((_, i) => i !== index));
+    } else {
+      setExistingImages(prev => prev.filter((_, i) => i !== index));
+    }
   };
 
   const uploadImages = async () => {
     if (imageFiles.length === 0) return [];
-  
-    const uploadPromises = imageFiles.map(async (file) => {
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
-  
-        const response = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
-  
-        if (!response.ok) {
-          throw new Error('Failed to upload image');
-        }
-  
-        const data = await response.json();
-        return data.url;
-      } catch (error) {
-        console.error('Error uploading file:', error);
-        throw new Error('Error uploading image');
-      }
+
+    const formData = new FormData();
+    imageFiles.forEach((file) => {
+      formData.append('images', file);
     });
-  
+
     try {
-      return await Promise.all(uploadPromises);
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload images');
+      }
+
+      const data = await response.json();
+      return data.urls;
     } catch (error) {
-      setError('Failed to upload one or more images');
-      throw error;
+      console.error('Error uploading images:', error);
+      throw new Error('Failed to upload images');
     }
   };
 
@@ -123,8 +151,11 @@ export default function AddProductPage() {
     setError('');
 
     try {
-      // First, upload all images
+      // Upload new images
       const uploadedImageUrls = await uploadImages();
+      
+      // Combine existing and new image URLs
+      const allImages = [...existingImages, ...uploadedImageUrls];
 
       const formattedData = {
         ...productData,
@@ -141,26 +172,26 @@ export default function AddProductPage() {
         },
         stock: Number(productData.stock),
         features: features.filter(feature => feature.trim() !== ''),
-        images: uploadedImageUrls
+        images: allImages
       };
 
-      const response = await fetch('/api/products', {
-        method: 'POST',
+      const response = await fetch(`/api/products/${params.id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formattedData),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to add product');
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to update product');
       }
 
-      router.push('/products');
+      router.push(`/products/${params.id}`);
+      router.refresh();
     } catch (error: any) {
-      setError(error.message || 'Error adding product');
+      setError(error.message || 'Error updating product');
     } finally {
       setLoading(false);
     }
@@ -170,7 +201,6 @@ export default function AddProductPage() {
     const newFeatures = [...features];
     newFeatures[index] = value;
     setFeatures(newFeatures);
-    // Add a new empty feature field if we're editing the last one
     if (index === features.length - 1 && value.trim() !== '') {
       setFeatures([...newFeatures, '']);
     }
@@ -185,7 +215,6 @@ export default function AddProductPage() {
     }
   };
 
-  // Show loading state while checking session
   if (status === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -194,7 +223,6 @@ export default function AddProductPage() {
     );
   }
 
-  // Show not authorized message if not admin
   if (session?.user?.role !== 'admin') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -209,7 +237,7 @@ export default function AddProductPage() {
   return (
     <div className="min-h-screen bg-gray-100 py-8">
       <div className="max-w-4xl mx-auto px-4">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Add New Solar Panel</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">Edit Product</h1>
         
         <form onSubmit={handleSubmit} className="space-y-8 bg-white rounded-xl shadow-sm p-8">
           {/* Basic Information */}
@@ -234,14 +262,19 @@ export default function AddProductPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Company
                 </label>
-                <input
-                  type="text"
+                <select
                   value={productData.company}
                   onChange={(e) => setProductData({...productData, company: e.target.value})}
                   className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 >
-                </input>
+                  <option value="">Select a company</option>
+                  {companies.map((company) => (
+                    <option key={company._id} value={company._id}>
+                      {company.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>
@@ -263,6 +296,32 @@ export default function AddProductPage() {
           <div className="space-y-6">
             <h2 className="text-2xl font-semibold text-gray-900 pb-2 border-b">Product Images</h2>
             
+            {/* Existing Images */}
+            {existingImages.length > 0 && (
+              <div>
+                <h3 className="text-lg font-medium text-gray-700 mb-4">Existing Images</h3>
+                <div className="grid grid-cols-3 gap-4">
+                  {existingImages.map((url, index) => (
+                    <div key={index} className="relative">
+                      <img
+                        src={url}
+                        alt={`Existing ${index + 1}`}
+                        className="w-full h-32 object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index, 'existing')}
+                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* New Image Upload */}
             <div className="space-y-4">
               <div className="flex items-center justify-center w-full">
                 <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
@@ -283,18 +342,19 @@ export default function AddProductPage() {
                 </label>
               </div>
 
+              {/* New Image Previews */}
               {imageUrls.length > 0 && (
-                <div className="grid grid-cols-3 gap-4 mt-4">
+                <div className="grid grid-cols-3 gap-4">
                   {imageUrls.map((url, index) => (
                     <div key={index} className="relative">
                       <img
                         src={url}
-                        alt={`Preview ${index + 1}`}
+                        alt={`New ${index + 1}`}
                         className="w-full h-32 object-cover rounded-lg"
                       />
                       <button
                         type="button"
-                        onClick={() => removeImage(index)}
+                        onClick={() => removeImage(index, 'new')}
                         className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
                       >
                         <X className="w-4 h-4" />
@@ -564,7 +624,7 @@ export default function AddProductPage() {
           <div className="flex justify-end space-x-4 pt-6">
             <button
               type="button"
-              onClick={() => router.push('/products')}
+              onClick={() => router.push(`/products/${params.id}`)}
               className="px-6 py-3 border border-gray-300 rounded-lg bg-white text-gray-700 hover:bg-gray-50 font-medium"
             >
               Cancel
@@ -574,7 +634,7 @@ export default function AddProductPage() {
               disabled={loading}
               className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50"
             >
-              {loading ? 'Adding...' : 'Add Product'}
+              {loading ? 'Saving Changes...' : 'Save Changes'}
             </button>
           </div>
         </form>
