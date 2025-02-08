@@ -12,6 +12,7 @@ const Header = () => {
 
   // Add a null check for state and state.items
   const cartItemCount = state?.items?.length || 0;
+  const isAdmin = session?.user?.role === 'admin';
 
   return (
     <header className="bg-white shadow-sm">
@@ -25,36 +26,59 @@ const Header = () => {
 
           {/* Navigation */}
           <nav className="hidden md:flex space-x-8">
-            <Link href="/products" className="text-gray-600 hover:text-gray-900">
-              Products
-            </Link>
-            <Link href="/companies" className="text-gray-600 hover:text-gray-900">
-              Companies
-            </Link>
-            <Link href="/calculator" className="text-gray-600 hover:text-gray-900">
-              Solar Calculator
-            </Link>
-            <Link href="/about" className="text-gray-600 hover:text-gray-900">
-              About
-            </Link>
+            {isAdmin ? (
+              // Admin Navigation
+              <>
+                <Link href="/products" className="text-gray-600 hover:text-gray-900">
+                  Products
+                </Link>
+                <Link href="/companies" className="text-gray-600 hover:text-gray-900">
+                  Companies
+                </Link>
+                <Link href="/admin/orders" className="text-gray-600 hover:text-gray-900">
+                  Orders
+                </Link>
+              </>
+            ) : (
+              // Regular User Navigation
+              <>
+                <Link href="/products" className="text-gray-600 hover:text-gray-900">
+                  Products
+                </Link>
+                <Link href="/companies" className="text-gray-600 hover:text-gray-900">
+                  Companies
+                </Link>
+                <Link href="/calculator" className="text-gray-600 hover:text-gray-900">
+                  Solar Calculator
+                </Link>
+                <Link href="/about" className="text-gray-600 hover:text-gray-900">
+                  About
+                </Link>
+              </>
+            )}
           </nav>
 
           {/* Right Section */}
           <div className="flex items-center space-x-4">
-            <Link href="/cart" className="text-gray-600 hover:text-gray-900 relative">
-              <ShoppingCart className="h-6 w-6" />
-              {cartItemCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {cartItemCount}
-                </span>
-              )}
-            </Link>
+            {/* Only show cart for non-admin users */}
+            {!isAdmin && (
+              <Link href="/cart" className="text-gray-600 hover:text-gray-900 relative">
+                <ShoppingCart className="h-6 w-6" />
+                {cartItemCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {cartItemCount}
+                  </span>
+                )}
+              </Link>
+            )}
+            
             {session ? (
               <button 
                 onClick={() => signOut()}
-                className="text-gray-600 hover:text-gray-900"
+                className="text-gray-600 hover:text-gray-900 flex items-center gap-2"
               >
                 <User className="h-6 w-6" />
+                {isAdmin && <span className="text-sm font-medium">Admin</span>}
               </button>
             ) : (
               <Link 

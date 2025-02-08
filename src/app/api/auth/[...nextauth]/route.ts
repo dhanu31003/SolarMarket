@@ -30,14 +30,6 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Invalid password');
         }
 
-        // Debug log
-        console.log('User from DB:', {
-          id: user._id.toString(),
-          email: user.email,
-          name: user.name,
-          role: user.role
-        });
-
         return {
           id: user._id.toString(),
           email: user.email,
@@ -50,8 +42,6 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        // Debug log
-        console.log('Setting JWT token:', { userId: user.id, role: user.role });
         token.id = user.id;
         token.role = user.role;
       }
@@ -59,25 +49,20 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session?.user) {
-        // Debug log
-        console.log('Setting session:', { tokenId: token.id, role: token.role });
         session.user.id = token.id;
         session.user.role = token.role;
       }
-      // Debug log
-      console.log('Final session:', session);
       return session;
     }
   },
+  pages: {
+    signIn: '/auth/signin'
+  },
   session: {
-    strategy: "jwt",
+    strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  pages: {
-    signIn: '/auth/signin',
-  },
-  secret: process.env.NEXTAUTH_SECRET,
-  debug: true // Enable debug logs in development
+  secret: process.env.NEXTAUTH_SECRET
 };
 
 const handler = NextAuth(authOptions);

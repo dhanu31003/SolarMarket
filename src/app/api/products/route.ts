@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import connectDB from '@/lib/db/mongodb';
-import { Product, Company } from '@/lib/models/Product';
+import { Product } from '@/lib/models/Product';
+import { Company } from '@/lib/models/Company';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export async function GET(request: Request) {
   try {
@@ -73,7 +75,16 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
+    
+    // Uncomment for production
+    /*if (!session?.user?.role !== 'admin') {
+      return NextResponse.json(
+        { message: 'Unauthorized' },
+        { status: 401 }
+      );
+    }*/
+
     await connectDB();
     const data = await request.json();
 
@@ -84,11 +95,11 @@ export async function POST(request: Request) {
       company = await Company.create({
         name: data.company,
         description: `Manufacturer of ${data.name}`,
-        location: 'India', // Default location
+        location: 'India',
         contactInfo: {
-          email: 'contact@example.com', // Default email
-          phone: '1234567890', // Default phone
-          address: 'India' // Default address
+          email: 'contact@example.com',
+          phone: '1234567890',
+          address: 'India'
         }
       });
     }
@@ -126,10 +137,28 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     await connectDB();
     const data = await request.json();
     const { id, ...updateData } = data;
+
+    // Handle company update if needed
+    if (updateData.company) {
+      let company = await Company.findOne({ name: updateData.company });
+      if (!company) {
+        company = await Company.create({
+          name: updateData.company,
+          description: `Manufacturer of ${updateData.name}`,
+          location: 'India',
+          contactInfo: {
+            email: 'contact@example.com',
+            phone: '1234567890',
+            address: 'India'
+          }
+        });
+      }
+      updateData.company = company._id;
+    }
 
     const product = await Product.findByIdAndUpdate(
       id,
@@ -156,7 +185,7 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 

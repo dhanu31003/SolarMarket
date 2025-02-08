@@ -164,7 +164,7 @@ export default function ProductDetailPage() {
             {session?.user?.role === 'admin' && (
                 <div className="col-span-2 flex justify-end space-x-4">
                     <button
-                    onClick={() => router.push(`/admin/products/edit/${params.id}`)}
+                    onClick={() => router.push(`/admin/products/${params.id}/edit`)}
                     className="flex items-center px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600"
                     >
                     <Pencil className="w-5 h-5 mr-2" />
