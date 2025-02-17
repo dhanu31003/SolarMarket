@@ -211,29 +211,32 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Product Info */}
-            <div className="space-y-6">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">{product.name || 'Unnamed Product'}</h1>
-                <p className="text-lg text-gray-600">{product.company?.name || 'Unknown Manufacturer'}</p>
-              </div>
-
-              <div className="flex justify-between items-center">
+              <div className="space-y-6">
                 <div>
-                  <p className="text-3xl font-bold text-gray-900">
-                    ₹{(product.price || 0).toLocaleString()}
-                  </p>
-                  <p className="text-sm text-gray-500">Inclusive of all taxes</p>
+                  <h1 className="text-3xl font-bold text-gray-900">{product.name || 'Unnamed Product'}</h1>
+                  <p className="text-lg text-gray-600">{product.company?.name || 'Unknown Manufacturer'}</p>
                 </div>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={handleAddToCart}
-                    className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center gap-2"
-                  >
-                    <ShoppingCart className="w-5 h-5" />
-                    Add to Cart
-                  </button>
+
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-3xl font-bold text-gray-900">
+                      ₹{(product.price || 0).toLocaleString()}
+                    </p>
+                    <p className="text-sm text-gray-500">Inclusive of all taxes</p>
+                  </div>
+                  <div className="flex gap-2">
+                    {/* Show Add to Cart button only for non-admin users */}
+                    {session?.user?.role !== 'admin' && (
+                      <button 
+                        onClick={handleAddToCart}
+                        className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center gap-2"
+                      >
+                        <ShoppingCart className="w-5 h-5" />
+                        Add to Cart
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
 
               {/* Key Features */}
               <div className="grid grid-cols-2 gap-4">

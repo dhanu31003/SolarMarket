@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { Sun, ShoppingCart, User, Menu } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Sun, ShoppingCart, User, Menu, LogOut, LogIn } from 'lucide-react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { useCart } from '@/contexts/CartContext';
@@ -9,10 +9,30 @@ import { useCart } from '@/contexts/CartContext';
 const Header = () => {
   const { data: session } = useSession();
   const { state } = useCart();
-
-  // Add a null check for state and state.items
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  
   const cartItemCount = state?.items?.length || 0;
   const isAdmin = session?.user?.role === 'admin';
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleSignOut = () => {
+    signOut();
+    setIsDropdownOpen(false);
+  };
 
   return (
     <header className="bg-white shadow-sm">
@@ -26,28 +46,11 @@ const Header = () => {
 
           {/* Navigation */}
           <nav className="hidden md:flex space-x-8">
-            {isAdmin ? (
-              // Admin Navigation
+            <Link href={isAdmin ? '/admin/products' : '/products'} className="text-gray-600 hover:text-gray-900">
+              Products
+            </Link>
+            {!isAdmin && (
               <>
-                <Link href="/products" className="text-gray-600 hover:text-gray-900">
-                  Products
-                </Link>
-                <Link href="/companies" className="text-gray-600 hover:text-gray-900">
-                  Companies
-                </Link>
-                <Link href="/admin/orders" className="text-gray-600 hover:text-gray-900">
-                  Orders
-                </Link>
-              </>
-            ) : (
-              // Regular User Navigation
-              <>
-                <Link href="/products" className="text-gray-600 hover:text-gray-900">
-                  Products
-                </Link>
-                <Link href="/companies" className="text-gray-600 hover:text-gray-900">
-                  Companies
-                </Link>
                 <Link href="/calculator" className="text-gray-600 hover:text-gray-900">
                   Solar Calculator
                 </Link>
@@ -56,11 +59,15 @@ const Header = () => {
                 </Link>
               </>
             )}
+            {isAdmin && (
+              <Link href="/orders" className="text-gray-600 hover:text-gray-900">
+                Orders
+              </Link>
+            )}
           </nav>
 
           {/* Right Section */}
           <div className="flex items-center space-x-4">
-            {/* Only show cart for non-admin users */}
             {!isAdmin && (
               <Link href="/cart" className="text-gray-600 hover:text-gray-900 relative">
                 <ShoppingCart className="h-6 w-6" />
@@ -72,22 +79,45 @@ const Header = () => {
               </Link>
             )}
             
-            {session ? (
-              <button 
-                onClick={() => signOut()}
-                className="text-gray-600 hover:text-gray-900 flex items-center gap-2"
+            {/* Profile Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 focus:outline-none"
               >
                 <User className="h-6 w-6" />
                 {isAdmin && <span className="text-sm font-medium">Admin</span>}
               </button>
-            ) : (
-              <Link 
-                href="/auth/signin"
-                className="text-gray-600 hover:text-gray-900"
-              >
-                <User className="h-6 w-6" />
-              </Link>
-            )}
+
+              {/* Dropdown Menu */}
+              {isDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 py-2 bg-white rounded-lg shadow-xl border border-gray-100 z-50">
+                  {session ? (
+                    <>
+                      <div className="px-4 py-2 border-b">
+                        <p className="text-sm font-medium text-gray-900">{session.user?.name || 'User'}</p>
+                        <p className="text-sm text-gray-500">{session.user?.email}</p>
+                      </div>
+                      <button
+                        onClick={handleSignOut}
+                        className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Logout
+                      </button>
+                    </>
+                  ) : (
+                    <Link
+                      href="/auth/signin"
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      <LogIn className="h-4 w-4 mr-2" />
+                      Login
+                    </Link>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
