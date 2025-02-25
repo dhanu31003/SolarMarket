@@ -1,0 +1,17 @@
+.animatedLink {
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.animatedLink:hover {
+  transform: translateY(-3px);
+  color: #45fb03; /* Change color on hover */
+}
+
+.animatedButton {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.animatedButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
