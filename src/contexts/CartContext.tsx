@@ -46,8 +46,6 @@ const calculateTotal = (items: CartItem[]): number => {
 };
 
 const cartReducer = (state: CartState = initialState, action: CartAction): CartState => {
-  let newState: CartState;
-
   switch (action.type) {
     case 'SET_CART':
       return {
@@ -58,7 +56,7 @@ const cartReducer = (state: CartState = initialState, action: CartAction): CartS
 
     case 'ADD_ITEM': {
       const existingItem = state.items.find(item => item._id === action.payload._id);
-      
+
       if (existingItem) {
         const updatedItems = state.items.map(item =>
           item._id === action.payload._id
@@ -119,14 +117,13 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   const { data: session, status } = useSession();
   const [state, dispatch] = useReducer(cartReducer, initialState);
 
-  // Load cart when session changes or on initial mount
   useEffect(() => {
     const loadCart = async () => {
       if (status === 'loading') return;
-
+  
       if (session?.user) {
         try {
-          const response = await fetch('/api/cart');
+          const response = await fetch('/api/cart?timestamp=' + new Date().getTime()); // Force fresh fetch
           if (response.ok) {
             const data = await response.json();
             if (data?.cart?.items) {
@@ -138,20 +135,18 @@ export const CartProvider = ({ children }: CartProviderProps) => {
         }
       }
     };
-
+  
     loadCart();
   }, [session, status]);
+  
 
-  // Sync cart with server whenever it changes
   useEffect(() => {
     const syncCart = async () => {
-      if (session?.user && state.items.length > 0) {
+      if (session?.user) {
         try {
           await fetch('/api/cart', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(state),
           });
         } catch (error) {
@@ -160,7 +155,6 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       }
     };
 
-    // Only sync if we have items in the cart
     if (state.items.length > 0) {
       syncCart();
     }
@@ -171,34 +165,61 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   };
 
   const removeItem = async (id: string) => {
-    dispatch({ type: 'REMOVE_ITEM', payload: id });
-  };
+    try {
+      const response = await fetch('/api/cart/remove', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-user-email': session?.user?.email || '' // Ensure email is passed
+        },
+        body: JSON.stringify({ itemId: id }),
+      });
+  
+      const text = await response.text(); // Read response as text
+      console.log('API Response:', text); // Log the raw response
+  
+      const jsonResponse = JSON.parse(text); // Parse as JSON
+      if (!response.ok) {
+        throw new Error(jsonResponse.message || 'Failed to remove item from database');
+      }
+  
+      dispatch({ type: 'SET_CART', payload: jsonResponse.cart });
+    } catch (error) {
+      console.error('Remove item error:', error);
+    }
+  };    
+  
 
   const updateQuantity = async (id: string, quantity: number) => {
     dispatch({ type: 'UPDATE_QUANTITY', payload: { id, quantity } });
+
+    if (session?.user) {
+      try {
+        await fetch('/api/cart/update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ itemId: id, quantity }),
+        });
+      } catch (error) {
+        console.error('Error updating item quantity:', error);
+      }
+    }
   };
 
   const clearCart = async () => {
+    dispatch({ type: 'CLEAR_CART' });
+
     if (session?.user) {
       try {
-        await fetch('/api/cart', { method: 'DELETE' });
+        await fetch('/api/cart/clear', { method: 'DELETE' });
       } catch (error) {
         console.error('Error clearing cart:', error);
       }
     }
-    dispatch({ type: 'CLEAR_CART' });
   };
 
   return (
-    <CartContext.Provider
-      value={{
-        state,
-        addItem,
-        removeItem,
-        updateQuantity,
-        clearCart,
-      }}
-    >
+    <CartContext.Provider value={{ state, addItem, removeItem, updateQuantity, clearCart }}>
       {children}
     </CartContext.Provider>
   );
