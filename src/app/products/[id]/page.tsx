@@ -105,7 +105,7 @@ export default function ProductDetailPage() {
     
     try {
       const id = params?.id;
-      const response = await fetch(`/api/products/${id}`, {
+      const response = await fetch(`/api/products?id=${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

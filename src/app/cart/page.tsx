@@ -8,6 +8,16 @@ import { ShoppingBag } from 'lucide-react';
 export default function CartPage() {
   const { state } = useCart();
 
+  const handleCheckout = () => {
+    const phoneNumber = '919030348946'; // Your WhatsApp number with country code
+    const cartDetails = state.items.map(item => 
+      `Product: ${item.name}%0AQuantity: ${item.quantity}%0APrice: ₹${item.price}%0AWattage: ${item.specifications?.wattage || 'N/A'}W`
+    ).join('%0A%0A');    
+    const message = `*Order Details*%0A${cartDetails}%0A%0ATotal: ₹${state.total.toLocaleString()}`;
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   if (state.items.length === 0) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 text-center">
@@ -61,12 +71,12 @@ export default function CartPage() {
                 </div>
               </div>
 
-              <Link
-                href="/checkout"
+              <button
+                onClick={handleCheckout}
                 className="mt-6 w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
               >
                 Proceed to Checkout
-              </Link>
+              </button>
             </div>
           </div>
         </div>
