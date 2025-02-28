@@ -1,6 +1,8 @@
 'use client';
 
 import { useRouter, useParams } from 'next/navigation';
+import { useEffect } from 'react';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import EditProductForm from '@/components/admin/products/EditProductForm';
 import { useSession } from 'next-auth/react';
 

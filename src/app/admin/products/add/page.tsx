@@ -165,8 +165,12 @@ export default function AddProductPage() {
       }
 
       router.push('/products');
-    } catch (error: any) {
-      setError(error.message || 'Error adding product');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(error.message || 'Error adding product');
+      } else {
+        setError('Error adding product');
+      }
     } finally {
       setLoading(false);
     }

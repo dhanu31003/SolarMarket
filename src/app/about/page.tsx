@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Sun, Users, Shield } from 'lucide-react';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { Award, Workflow, Globe, Sun, Users, Shield } from 'lucide-react';
 import { useInView } from 'react-intersection-observer';
 import { useRouter } from 'next/navigation';
 import Head from 'next/head';
@@ -47,6 +48,9 @@ const AboutPage = () => {
     //*  quote: 'Every customer satisfaction is our priority.'
     //*}
   ];
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleGetStarted = () => {};
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;

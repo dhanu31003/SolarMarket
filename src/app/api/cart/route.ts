@@ -30,10 +30,14 @@ export async function GET() {
 
     return NextResponse.json({ cart });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in GET /api/cart:', error);
+    let errorMessage = 'Internal Server Error';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
     return NextResponse.json(
-      { message: 'Internal Server Error', error: error.message },
+      { message: 'Internal Server Error', error: errorMessage },
       { status: 500 }
     );
   }
@@ -71,10 +75,14 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ cart: updatedCart });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in POST /api/cart:', error);
+    let errorMessage = 'Internal Server Error';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
     return NextResponse.json(
-      { message: 'Internal Server Error', error: error.message },
+      { message: 'Internal Server Error', error: errorMessage },
       { status: 500 }
     );
   }
@@ -110,10 +118,14 @@ export async function DELETE() {
       }
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in DELETE /api/cart:', error);
+    let errorMessage = 'Internal Server Error';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
     return NextResponse.json(
-      { message: 'Internal Server Error', error: error.message },
+      { message: 'Internal Server Error', error: errorMessage },
       { status: 500 }
     );
   }
