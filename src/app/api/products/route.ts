@@ -64,10 +64,14 @@ export async function GET(request: Request) {
       }
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Products fetch error:', error);
+    let errorMessage = 'Error fetching products';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
     return NextResponse.json(
-      { message: 'Error fetching products', error: error.message },
+      { message: 'Error fetching products', error: errorMessage },
       { status: 500 }
     );
   }
@@ -126,10 +130,14 @@ export async function POST(request: Request) {
     const populatedProduct = await Product.findById(product._id).populate('company', 'name logo');
 
     return NextResponse.json(populatedProduct, { status: 201 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error creating product:', error);
+    let errorMessage = 'Error creating product';
+    if (error instanceof Error) {
+      errorMessage = error.message || 'Error creating product';
+    }
     return NextResponse.json(
-      { message: error.message || 'Error creating product' },
+      { message: errorMessage },
       { status: 500 }
     );
   }
@@ -174,10 +182,14 @@ export async function PUT(request: Request) {
     }
 
     return NextResponse.json(product);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error updating product:', error);
+    let errorMessage = 'Error updating product';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
     return NextResponse.json(
-      { message: error.message },
+      { message: errorMessage },
       { status: 500 }
     );
   }
@@ -207,10 +219,14 @@ export async function DELETE(request: Request) {
     }
 
     return NextResponse.json({ message: 'Product deleted successfully' });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error deleting product:', error);
+    let errorMessage = 'Error deleting product';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
     return NextResponse.json(
-      { message: error.message },
+      { message: errorMessage },
       { status: 500 }
     );
   }

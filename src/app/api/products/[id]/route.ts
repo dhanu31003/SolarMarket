@@ -10,6 +10,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const session = await getServerSession(authOptions);
     
     // Allow GET requests without authentication
@@ -24,10 +25,14 @@ export async function GET(
     }
 
     return NextResponse.json(product);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Product fetch error:', error);
+    let errorMessage = 'Error fetching product';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
     return NextResponse.json(
-      { message: 'Error fetching product' },
+      { message: 'Error fetching product', error: errorMessage },
       { status: 500 }
     );
   }
@@ -68,7 +73,7 @@ export async function PUT(
       data.company = company._id;
     }
 
-    // Explicitly strip out any cart-related fields
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const {
       cartId, 
       cartQuantity, 
@@ -97,10 +102,14 @@ export async function PUT(
       product
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error updating product:', error);
+    let errorMessage = 'Error updating product';
+    if (error instanceof Error) {
+      errorMessage = error.message || 'Error updating product';
+    }
     return NextResponse.json(
-      { message: error.message || 'Error updating product' },
+      { message: errorMessage },
       { status: 500 }
     );
   }

@@ -17,7 +17,7 @@ export async function GET(request: Request) {
     await connectDB();
 
     // Build query
-    const query: any = { status: 'active' };
+    const query: { [key: string]: unknown } = { status: 'active' };
     
     if (search) {
       query.$or = [
@@ -57,10 +57,14 @@ export async function GET(request: Request) {
       }
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Companies fetch error:', error);
+    let errorMessage = 'Error fetching companies';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
     return NextResponse.json(
-      { message: 'Error fetching companies', error: error.message },
+      { message: 'Error fetching companies', error: errorMessage },
       { status: 500 }
     );
   }
@@ -90,10 +94,14 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(company, { status: 201 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error creating company:', error);
+    let errorMessage = 'Error creating company';
+    if (error instanceof Error) {
+      errorMessage = error.message || 'Error creating company';
+    }
     return NextResponse.json(
-      { message: error.message || 'Error creating company' },
+      { message: errorMessage },
       { status: 500 }
     );
   }
@@ -129,10 +137,14 @@ export async function PUT(request: Request) {
     }
 
     return NextResponse.json(company);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error updating company:', error);
+    let errorMessage = '';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
     return NextResponse.json(
-      { message: error.message },
+      { message: errorMessage },
       { status: 500 }
     );
   }
@@ -171,10 +183,14 @@ export async function DELETE(request: Request) {
     }
 
     return NextResponse.json({ message: 'Company deleted successfully' });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error deleting company:', error);
+    let errorMessage = '';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
     return NextResponse.json(
-      { message: error.message },
+      { message: errorMessage },
       { status: 500 }
     );
   }
