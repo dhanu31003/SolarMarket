@@ -55,12 +55,14 @@ const SignUpForm = () => {
         router.push('/auth/signin');
       }, 1500);
       
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Signup error:', err);
-      setError(err.message || 'An error occurred during sign up');
-    } finally {
-      setLoading(false);
-    }
+      if (err instanceof Error) {
+        setError(err.message || 'An error occurred during sign up');
+      } else {
+        setError('An unknown error occurred');
+      }
+    }    
   };
 
   return (

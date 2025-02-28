@@ -101,21 +101,21 @@ Message: ${formData.message}`;
     {
       name: "Priya Sharma",
       location: "Mumbai",
-      image: "/api/placeholder/100/100",
+      image: "/images/jpg1.jpeg", // Corrected path
       rating: 5,
       text: "Installing solar panels was the best decision we made for our home. Our electricity bill has reduced by 65% and the installation team was extremely professional."
     },
     {
       name: "Rajesh Kumar",
       location: "Delhi",
-      image: "/api/placeholder/100/100",
+      image: "/images/jpg2.jpeg", // Corrected path
       rating: 5,
       text: "I was hesitant at first, but the team at SolarMarket made the whole process seamless. The quality of panels is excellent and the savings are real!"
     },
     {
       name: "Ananya Patel",
       location: "Ahmedabad",
-      image: "/api/placeholder/100/100",
+      image: "/images/jpg3.jpeg", // Corrected path
       rating: 4,
       text: "From consultation to installation, everything was handled professionally. It's been a year now and our panels have performed better than expected."
     }

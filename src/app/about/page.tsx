@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Sun, Award, Users, Workflow, Zap, Shield, Globe } from 'lucide-react';
+import { Sun, Users, Workflow, Zap, Shield, Globe } from 'lucide-react';
 import { useInView } from 'react-intersection-observer';
 import { useRouter } from 'next/navigation';
 import Head from 'next/head';
@@ -28,23 +28,23 @@ const AboutPage = () => {
 
   const teamMembers = [
     {
-      name: 'Alex Thompson',
+      name: 'Dhanush Pujari',
       role: 'Founder & CEO',
-      image: '/api/placeholder/400/400',
+      image: '/images/jpg5.png',
       quote: 'Building a sustainable future through solar innovation.'
     },
-    {
-      name: 'Sarah Chen',
-      role: 'Chief Technology Officer',
-      image: '/api/placeholder/400/400',
-      quote: 'Pushing the boundaries of solar technology.'
-    },
-    {
-      name: 'Michael Rodriguez',
-      role: 'Head of Customer Success',
-      image: '/api/placeholder/400/400',
-      quote: 'Every customer satisfaction is our priority.'
-    }
+    //*{
+    //*  name: 'Sarah Chen',
+    //*  role: 'Chief Technology Officer',
+    //*  image: '/api/placeholder/400/400',
+    //*  quote: 'Pushing the boundaries of solar technology.'
+    //*},
+    //*{
+    //*  name: 'Michael Rodriguez',
+    //*  role: 'Head of Customer Success',
+    //*  image: '/api/placeholder/400/400',
+    //*  quote: 'Every customer satisfaction is our priority.'
+    //*}
   ];
 
   const handleGetStarted = () => {
@@ -129,7 +129,7 @@ Message: ${formData.message}`;
                 </div>
                 <div className="relative h-64 md:h-full min-h-[400px]">
                   <img
-                    src="/api/placeholder/800/600"
+                    src="/images/jpg4.jpeg"
                     alt="Solar Installation"
                     className="absolute inset-0 w-full h-full object-cover rounded-lg"
                   />
@@ -171,11 +171,11 @@ Message: ${formData.message}`;
         >
           <div className="max-w-7xl mx-auto">
             <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">Meet Our Team</h2>
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="flex justify-center">
               {teamMembers.map((member, index) => (
                 <div
                   key={index}
-                  className="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300"
+                  className="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300 mx-4"
                 >
                   <div className="relative h-64">
                     <img
@@ -184,7 +184,7 @@ Message: ${formData.message}`;
                       className="absolute inset-0 w-full h-full object-cover"
                     />
                   </div>
-                  <div className="p-6">
+                  <div className="p-6 text-center">
                     <h3 className="text-xl font-bold text-gray-900 mb-1">{member.name}</h3>
                     <p className="text-blue-600 mb-4">{member.role}</p>
                     <p className="text-gray-600 italic">"{member.quote}"</p>

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Sun, ShoppingCart, User, Menu, LogOut, LogIn } from 'lucide-react';
+import { Sun, ShoppingCart, User, LogOut, LogIn } from 'lucide-react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { useCart } from '@/contexts/CartContext';
