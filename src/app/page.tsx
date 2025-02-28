@@ -68,7 +68,7 @@ Message: ${formData.message}`;
     {
       icon: <Home className="h-10 w-10 text-green-500" />,
       title: "Increased Property Value",
-      description: "Solar installations can increase your home's value by 4-6%, making it more attractive to future buyers."
+      description: "Solar installations can increase your home&apos;s value by 4-6%, making it more attractive to future buyers."
     },
     {
       icon: <Zap className="h-10 w-10 text-green-500" />,
@@ -117,7 +117,7 @@ Message: ${formData.message}`;
       location: "Ahmedabad",
       image: "/images/jpg3.jpeg", // Corrected path
       rating: 4,
-      text: "From consultation to installation, everything was handled professionally. It's been a year now and our panels have performed better than expected."
+      text: "From consultation to installation, everything was handled professionally. It&apos;s been a year now and our panels have performed better than expected."
     }
   ];
 
@@ -130,8 +130,8 @@ Message: ${formData.message}`;
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 px-4">
               Find the Perfect Solar Solution
             </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto px-4">
-              Harness the power of the sun with India's premier solar marketplace. Compare top brands, save money, and contribute to a greener future.
+            <p className="mt-4 text-xl text-gray-600 mb-8 max-w-3xl mx-auto px-4">
+              Harness the power of the sun with India&apos;s premier solar marketplace. Compare top brands, save money, and contribute to a greener future.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Link href="/products" className="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-blue-700 transition-colors mx-auto sm:mx-0">
@@ -150,39 +150,39 @@ Message: ${formData.message}`;
 
       {/* Features Section (Original) */}
       <section className="bg-gray-50 py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <div className="flex flex-col items-center text-center p-6">
-            <Sun className="w-12 h-12 text-blue-600 mb-4" />
-            <h3 className="text-xl font-semibold mb-2 text-gray-900">Top Brands</h3>
-            <p className="text-gray-700">
-              Choose from India's leading solar panel manufacturers
-            </p>
-          </div>
-          <div className="flex flex-col items-center text-center p-6">
-            <Battery className="w-12 h-12 text-blue-600 mb-4" />
-            <h3 className="text-xl font-semibold mb-2 text-gray-900">Easy Comparison</h3>
-            <p className="text-gray-700">
-              Compare specifications and prices easily
-            </p>
-          </div>
-          <div className="flex flex-col items-center text-center p-6">
-            <Award className="w-12 h-12 text-blue-600 mb-4" />
-            <h3 className="text-xl font-semibold mb-2 text-gray-900">Verified Quality</h3>
-            <p className="text-gray-700">
-              All products meet strict quality standards
-            </p>
-          </div>
-          <div className="flex flex-col items-center text-center p-6">
-            <Zap className="w-12 h-12 text-blue-600 mb-4" />
-            <h3 className="text-xl font-semibold mb-2 text-gray-900">Expert Support</h3>
-            <p className="text-gray-700">
-              Get help with selection and installation
-            </p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="flex flex-col items-center text-center p-6">
+              <Sun className="w-12 h-12 text-blue-600 mb-4" />
+              <h3 className="text-xl font-semibold mb-2 text-gray-900">Top Brands</h3>
+              <p className="text-gray-700">
+                Choose from India&apos;s leading solar panel manufacturers
+              </p>
+            </div>
+            <div className="flex flex-col items-center text-center p-6">
+              <Battery className="w-12 h-12 text-blue-600 mb-4" />
+              <h3 className="text-xl font-semibold mb-2 text-gray-900">Easy Comparison</h3>
+              <p className="text-gray-700">
+                Compare specifications and prices easily
+              </p>
+            </div>
+            <div className="flex flex-col items-center text-center p-6">
+              <Award className="w-12 h-12 text-blue-600 mb-4" />
+              <h3 className="text-xl font-semibold mb-2 text-gray-900">Verified Quality</h3>
+              <p className="text-gray-700">
+                All products meet strict quality standards
+              </p>
+            </div>
+            <div className="flex flex-col items-center text-center p-6">
+              <Zap className="w-12 h-12 text-blue-600 mb-4" />
+              <h3 className="text-xl font-semibold mb-2 text-gray-900">Expert Support</h3>
+              <p className="text-gray-700">
+                Get help with selection and installation
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
       {/* Benefits Section */}
       <section 
@@ -306,7 +306,7 @@ Message: ${formData.message}`;
                     />
                   ))}
                 </div>
-                <p className="text-gray-600 italic">"{testimonial.text}"</p>
+                <p className="text-gray-600 italic">&quot;{testimonial.text}&quot;</p>
               </div>
             ))}
           </div>
@@ -430,3 +430,5 @@ Message: ${formData.message}`;
     </main>
   );
 }
+
+//*export default HomePage;
