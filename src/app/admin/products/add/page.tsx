@@ -1,5 +1,7 @@
 'use client';
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -21,15 +23,19 @@ export default function AddProductPage() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  // companies is fetched but not used in this page; disabling unused-vars lint
   const [companies, setCompanies] = useState<Company[]>([]);
   const [features, setFeatures] = useState<string[]>(['']);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
 
+  // Added new keys "state" and "district" to the initial product data
   const [productData, setProductData] = useState({
     name: '',
     company: '',
     price: '',
+    state: '',       // NEW: State field
+    district: '',    // NEW: District field
     specifications: {
       wattage: '',
       efficiency: '',
@@ -84,23 +90,23 @@ export default function AddProductPage() {
     });
   };
 
-  const uploadImages = async () => {
+  const uploadImages = async (): Promise<string[]> => {
     if (imageFiles.length === 0) return [];
-  
+
     const uploadPromises = imageFiles.map(async (file) => {
       try {
         const formData = new FormData();
         formData.append('file', file);
-  
+
         const response = await fetch('/api/upload', {
           method: 'POST',
           body: formData,
         });
-  
+
         if (!response.ok) {
           throw new Error('Failed to upload image');
         }
-  
+
         const data = await response.json();
         return data.url;
       } catch (error) {
@@ -108,7 +114,7 @@ export default function AddProductPage() {
         throw new Error('Error uploading image');
       }
     });
-  
+
     try {
       return await Promise.all(uploadPromises);
     } catch (error) {
@@ -224,7 +230,7 @@ export default function AddProductPage() {
                 <input
                   type="text"
                   value={productData.name}
-                  onChange={(e) => setProductData({...productData, name: e.target.value})}
+                  onChange={(e) => setProductData({ ...productData, name: e.target.value })}
                   className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 />
@@ -237,11 +243,10 @@ export default function AddProductPage() {
                 <input
                   type="text"
                   value={productData.company}
-                  onChange={(e) => setProductData({...productData, company: e.target.value})}
+                  onChange={(e) => setProductData({ ...productData, company: e.target.value })}
                   className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
-                >
-                </input>
+                />
               </div>
 
               <div>
@@ -251,10 +256,38 @@ export default function AddProductPage() {
                 <input
                   type="number"
                   value={productData.price}
-                  onChange={(e) => setProductData({...productData, price: e.target.value})}
+                  onChange={(e) => setProductData({ ...productData, price: e.target.value })}
                   className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 />
+              </div>
+
+              {/* NEW: State and District Fields */}
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    State
+                  </label>
+                  <input
+                    type="text"
+                    value={productData.state}
+                    onChange={(e) => setProductData({ ...productData, state: e.target.value })}
+                    className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    District
+                  </label>
+                  <input
+                    type="text"
+                    value={productData.district}
+                    onChange={(e) => setProductData({ ...productData, district: e.target.value })}
+                    className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -345,13 +378,15 @@ export default function AddProductPage() {
                 <input
                   type="number"
                   value={productData.specifications.wattage}
-                  onChange={(e) => setProductData({
-                    ...productData,
-                    specifications: {
-                      ...productData.specifications,
-                      wattage: e.target.value
-                    }
-                  })}
+                  onChange={(e) =>
+                    setProductData({
+                      ...productData,
+                      specifications: {
+                        ...productData.specifications,
+                        wattage: e.target.value,
+                      },
+                    })
+                  }
                   className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 />
@@ -364,13 +399,15 @@ export default function AddProductPage() {
                 <input
                   type="text"
                   value={productData.specifications.efficiency}
-                  onChange={(e) => setProductData({
-                    ...productData,
-                    specifications: {
-                      ...productData.specifications,
-                      efficiency: e.target.value
-                    }
-                  })}
+                  onChange={(e) =>
+                    setProductData({
+                      ...productData,
+                      specifications: {
+                        ...productData.specifications,
+                        efficiency: e.target.value,
+                      },
+                    })
+                  }
                   className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 />
@@ -382,13 +419,15 @@ export default function AddProductPage() {
                 </label>
                 <select
                   value={productData.specifications.type}
-                  onChange={(e) => setProductData({
-                    ...productData,
-                    specifications: {
-                      ...productData.specifications,
-                      type: e.target.value
-                    }
-                  })}
+                  onChange={(e) =>
+                    setProductData({
+                      ...productData,
+                      specifications: {
+                        ...productData.specifications,
+                        type: e.target.value as 'Monocrystalline' | 'Polycrystalline' | 'Thin-Film',
+                      },
+                    })
+                  }
                   className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 >
@@ -405,13 +444,15 @@ export default function AddProductPage() {
                 <input
                   type="text"
                   value={productData.specifications.warranty}
-                  onChange={(e) => setProductData({
-                    ...productData,
-                    specifications: {
-                      ...productData.specifications,
-                      warranty: e.target.value
-                    }
-                  })}
+                  onChange={(e) =>
+                    setProductData({
+                      ...productData,
+                      specifications: {
+                        ...productData.specifications,
+                        warranty: e.target.value,
+                      },
+                    })
+                  }
                   className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 />
@@ -427,16 +468,18 @@ export default function AddProductPage() {
                 <input
                   type="number"
                   value={productData.specifications.dimensions.length}
-                  onChange={(e) => setProductData({
-                    ...productData,
-                    specifications: {
-                      ...productData.specifications,
-                      dimensions: {
-                        ...productData.specifications.dimensions,
-                        length: e.target.value
-                      }
-                    }
-                  })}
+                  onChange={(e) =>
+                    setProductData({
+                      ...productData,
+                      specifications: {
+                        ...productData.specifications,
+                        dimensions: {
+                          ...productData.specifications.dimensions,
+                          length: e.target.value,
+                        },
+                      },
+                    })
+                  }
                   className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 />
@@ -449,16 +492,18 @@ export default function AddProductPage() {
                 <input
                   type="number"
                   value={productData.specifications.dimensions.width}
-                  onChange={(e) => setProductData({
-                    ...productData,
-                    specifications: {
-                      ...productData.specifications,
-                      dimensions: {
-                        ...productData.specifications.dimensions,
-                        width: e.target.value
-                      }
-                    }
-                  })}
+                  onChange={(e) =>
+                    setProductData({
+                      ...productData,
+                      specifications: {
+                        ...productData.specifications,
+                        dimensions: {
+                          ...productData.specifications.dimensions,
+                          width: e.target.value,
+                        },
+                      },
+                    })
+                  }
                   className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 />
@@ -471,16 +516,18 @@ export default function AddProductPage() {
                 <input
                   type="number"
                   value={productData.specifications.dimensions.height}
-                  onChange={(e) => setProductData({
-                    ...productData,
-                    specifications: {
-                      ...productData.specifications,
-                      dimensions: {
-                        ...productData.specifications.dimensions,
-                        height: e.target.value
-                      }
-                    }
-                  })}
+                  onChange={(e) =>
+                    setProductData({
+                      ...productData,
+                      specifications: {
+                        ...productData.specifications,
+                        dimensions: {
+                          ...productData.specifications.dimensions,
+                          height: e.target.value,
+                        },
+                      },
+                    })
+                  }
                   className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 />
@@ -494,13 +541,15 @@ export default function AddProductPage() {
               <input
                 type="number"
                 value={productData.specifications.weight}
-                onChange={(e) => setProductData({
-                  ...productData,
-                  specifications: {
-                    ...productData.specifications,
-                    weight: e.target.value
-                  }
-                })}
+                onChange={(e) =>
+                  setProductData({
+                    ...productData,
+                    specifications: {
+                      ...productData.specifications,
+                      weight: e.target.value,
+                    },
+                  })
+                }
                 className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               />
@@ -517,7 +566,7 @@ export default function AddProductPage() {
               </label>
               <textarea
                 value={productData.description}
-                onChange={(e) => setProductData({...productData, description: e.target.value})}
+                onChange={(e) => setProductData({ ...productData, description: e.target.value })}
                 className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 rows={4}
                 required
@@ -531,7 +580,7 @@ export default function AddProductPage() {
               <input
                 type="number"
                 value={productData.stock}
-                onChange={(e) => setProductData({...productData, stock: e.target.value})}
+                onChange={(e) => setProductData({ ...productData, stock: e.target.value })}
                 className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               />
@@ -542,10 +591,7 @@ export default function AddProductPage() {
                 <input
                   type="checkbox"
                   checked={productData.installationAvailable}
-                  onChange={(e) => setProductData({
-                    ...productData,
-                    installationAvailable: e.target.checked
-                  })}
+                  onChange={(e) => setProductData({ ...productData, installationAvailable: e.target.checked })}
                   className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 <span className="text-sm font-medium text-gray-700">

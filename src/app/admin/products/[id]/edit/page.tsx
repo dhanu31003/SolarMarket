@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import EditProductForm from '@/components/admin/products/EditProductForm';
 import { useSession } from 'next-auth/react';

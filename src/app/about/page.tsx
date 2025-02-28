@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Sun, Users, Workflow, Zap, Shield, Globe } from 'lucide-react';
+import { Sun, Users, Shield } from 'lucide-react';
 import { useInView } from 'react-intersection-observer';
 import { useRouter } from 'next/navigation';
 import Head from 'next/head';
+import Image from 'next/image';
 
 const AboutPage = () => {
   const router = useRouter();
@@ -47,10 +48,6 @@ const AboutPage = () => {
     //*}
   ];
 
-  const handleGetStarted = () => {
-    router.push('/');
-  };
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prevState => ({
@@ -92,11 +89,11 @@ Message: ${formData.message}`;
           <div className="absolute inset-0 bg-[url('/api/placeholder/1920/1080')] bg-cover bg-center opacity-10"></div>
           <div className="max-w-7xl mx-auto text-center relative">
             <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-              Powering Tomorrow's
+              Powering Tomorrow&apos;s
               <span className="text-green-600"> Sustainable Future</span>
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              At SolarMarket, we're committed to making solar energy accessible, 
+              At SolarMarket, we&apos;re committed to making solar energy accessible, 
               affordable, and simple for everyone. Join us in the renewable energy revolution.
             </p>
           </div>
@@ -115,22 +112,24 @@ Message: ${formData.message}`;
                   <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Mission</h2>
                   <p className="text-lg text-gray-600 mb-6">
                     We believe in a world powered by sustainable energy. Our mission is to accelerate
-                    the world's transition to solar power by providing high-quality solar solutions
+                    the world&apos;s transition to solar power by providing high-quality solar solutions
                     at competitive prices.
                   </p>
                   <div className="space-y-4">
                     {[ 'Premium Quality Products', 'Expert Installation Services', 'Lifetime Support', 'Sustainable Practices' ].map((item, index) => (
                       <div key={index} className="flex items-center">
-                        <Zap className="h-5 w-5 text-blue-500 mr-3" />
+                        <Sun className="h-5 w-5 text-blue-500 mr-3" />
                         <span className="text-gray-700">{item}</span>
                       </div>
                     ))}
                   </div>
                 </div>
                 <div className="relative h-64 md:h-full min-h-[400px]">
-                  <img
+                  <Image
                     src="/images/jpg4.jpeg"
                     alt="Solar Installation"
+                    width={800}
+                    height={600}
                     className="absolute inset-0 w-full h-full object-cover rounded-lg"
                   />
                 </div>
@@ -178,16 +177,18 @@ Message: ${formData.message}`;
                   className="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300 mx-4"
                 >
                   <div className="relative h-64">
-                    <img
+                    <Image
                       src={member.image}
                       alt={member.name}
+                      width={400}
+                      height={400}
                       className="absolute inset-0 w-full h-full object-cover"
                     />
                   </div>
                   <div className="p-6 text-center">
                     <h3 className="text-xl font-bold text-gray-900 mb-1">{member.name}</h3>
                     <p className="text-blue-600 mb-4">{member.role}</p>
-                    <p className="text-gray-600 italic">"{member.quote}"</p>
+                    <p className="text-gray-600 italic">&quot;{member.quote}&quot;</p>
                   </div>
                 </div>
               ))}
