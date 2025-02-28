@@ -40,7 +40,7 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo and Brand */}
-          <Link href="/"replace className="flex items-center">
+          <Link href="/" replace className="flex items-center">
             <Sun className="h-8 w-8 text-yellow-500" />
             <span className="ml-2 text-xl font-bold text-gray-900">SolarMarket</span>
           </Link>

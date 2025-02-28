@@ -62,6 +62,8 @@ const SignUpForm = () => {
       } else {
         setError('An unknown error occurred');
       }
+    } finally {
+      setLoading(false);
     }    
   };
 

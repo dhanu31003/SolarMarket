@@ -36,8 +36,8 @@ const CartItem: React.FC<CartItemProps> = ({
         <Image
           src={image || '/placeholder.jpg'}
           alt={name}
-          width={96}  // Adjusted width
-          height={96} // Adjusted height
+          width={96}
+          height={96}
           className="w-full h-full object-contain"
         />
       </div>
