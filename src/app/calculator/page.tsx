@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import { Sun, DollarSign, Zap, Calendar, BarChart, Activity, Clock, Send, HelpCircle } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation'; // eslint-disable-line @typescript-eslint/no-unused-vars
 
 const SolarCalculator = () => {
   const router = useRouter();
@@ -405,7 +405,7 @@ CO2 Reduction: ${results.co2Reduction} tonnes/year%0A
                   <div className="flex items-start mb-4">
                     <HelpCircle className="h-6 w-6 text-blue-600 mr-3 flex-shrink-0 mt-1" />
                     <div>
-                      <h3 className="font-semibold text-gray-900">What's Next?</h3>
+                      <h3 className="font-semibold text-gray-900">What&apos;s Next?</h3>
                       <p className="text-gray-600 mt-1">
                         These calculations are estimates based on your inputs and average solar performance in your region. 
                         For a precise quote and personalized system design, our experts will need to conduct a detailed site assessment.

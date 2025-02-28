@@ -61,6 +61,7 @@ export default function CompaniesPage() {
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchCompanies();
   }, [page, filters]);

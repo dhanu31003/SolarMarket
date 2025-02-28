@@ -39,16 +39,21 @@ export async function POST(request: Request) {
     });
 
     // Remove password from response
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...adminWithoutPassword } = admin.toObject();
 
     return NextResponse.json(
       { message: 'Admin user created successfully', user: adminWithoutPassword },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Setup error:', error);
+    let errorMessage = 'Setup error';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
     return NextResponse.json(
-      { message: error.message },
+      { message: errorMessage },
       { status: 500 }
     );
   }

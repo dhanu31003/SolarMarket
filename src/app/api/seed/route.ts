@@ -139,8 +139,12 @@ export async function GET() {
       products: productsWithCompanies.length
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Seed error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    let errorMessage = 'Seed error';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

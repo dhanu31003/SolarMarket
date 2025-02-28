@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     const uploadDir = join(process.cwd(), 'public/uploads');
     try {
       await mkdir(uploadDir, { recursive: true });
-    } catch (error) {
+    } catch (error: unknown) {
       // Directory might already exist, ignore error
     }
 
@@ -40,10 +40,14 @@ export async function POST(request: Request) {
       url: `/uploads/${filename}` 
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error uploading file:', error);
+    let errorMessage = 'Error uploading file';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
     return NextResponse.json(
-      { error: 'Error uploading file' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
