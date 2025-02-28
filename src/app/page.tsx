@@ -140,6 +140,9 @@ Message: ${formData.message}`;
               <a href="#contact-form" className="bg-green-600 text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-green-700 transition-colors mx-auto sm:mx-0">
                 Get Free Consultation
               </a>
+              <Link href="/blog" className="bg-yellow-600 text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-yellow-700 transition-colors mx-auto sm:mx-0">
+                Read Our Blog
+              </Link>
             </div>
           </div>
         </div>
