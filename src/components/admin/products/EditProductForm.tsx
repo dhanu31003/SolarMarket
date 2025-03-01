@@ -37,7 +37,7 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [features, setFeatures] = useState<string[]>(['']);
-  // Renamed imageFiles to _imageFiles to indicate it's intentionally not read directly.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_imageFiles, setImageFiles] = useState<File[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
