@@ -10,8 +10,8 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const session = await getServerSession(authOptions);
+    // Session is not used, so we prefix it with an underscore.
+    const _session = await getServerSession(authOptions);
     
     // Allow GET requests without authentication
     await connectDB();
@@ -73,11 +73,11 @@ export async function PUT(
       data.company = company._id;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // Prefixing unused variables with an underscore to resolve the ESLint errors.
     const {
-      cartId, 
-      cartQuantity, 
-      inCart,
+      cartId: _cartId, 
+      cartQuantity: _cartQuantity, 
+      inCart: _inCart,
       ...cleanedData
     } = data;
 
