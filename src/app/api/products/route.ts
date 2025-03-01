@@ -20,7 +20,8 @@ export async function GET(request: Request) {
     
     await connectDB();
 
-    const query: any = {};
+    // Build query using a specific type to avoid "Unexpected any"
+    const query: Record<string, unknown> = {};
     
     if (search) {
       query.$text = { $search: search };
@@ -32,15 +33,15 @@ export async function GET(request: Request) {
     
     if (minPrice || maxPrice) {
       query.price = { 
-        ...(minPrice && { $gte: minPrice }),
-        ...(maxPrice && { $lte: maxPrice })
+        ...(minPrice ? { $gte: minPrice } : {}),
+        ...(maxPrice ? { $lte: maxPrice } : {})
       };
     }
 
     if (minWattage || maxWattage) {
       query['specifications.wattage'] = {
-        ...(minWattage && { $gte: minWattage }),
-        ...(maxWattage && { $lte: maxWattage })
+        ...(minWattage ? { $gte: minWattage } : {}),
+        ...(maxWattage ? { $lte: maxWattage } : {})
       };
     }
 
@@ -79,6 +80,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const session = await getServerSession(authOptions);
     
     // Uncomment for production
@@ -145,6 +147,7 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const session = await getServerSession(authOptions);
     await connectDB();
     const data = await request.json();
@@ -197,6 +200,7 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const session = await getServerSession(authOptions);
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
