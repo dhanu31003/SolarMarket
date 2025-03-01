@@ -9,6 +9,7 @@ import Head from 'next/head';
 import Image from 'next/image';
 
 const AboutPage = () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const router = useRouter();
   const [formData, setFormData] = useState({
     name: '',

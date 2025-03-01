@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Trash2, Upload, X } from 'lucide-react';
+import Image from 'next/image';
 
 interface Company {
   _id: string;
@@ -93,7 +94,7 @@ export default function AddProductPage() {
   const uploadImages = async (): Promise<string[]> => {
     if (imageFiles.length === 0) return [];
 
-    const uploadPromises = imageFiles.map(async (file) => {
+    const uploadPromises = imageFiles.map(async (file: File) => {
       try {
         const formData = new FormData();
         formData.append('file', file);
@@ -107,7 +108,7 @@ export default function AddProductPage() {
           throw new Error('Failed to upload image');
         }
 
-        const data = await response.json();
+        const data = (await response.json()) as { url: string };
         return data.url;
       } catch (error) {
         console.error('Error uploading file:', error);
@@ -323,11 +324,12 @@ export default function AddProductPage() {
               {imageUrls.length > 0 && (
                 <div className="grid grid-cols-3 gap-4 mt-4">
                   {imageUrls.map((url, index) => (
-                    <div key={index} className="relative">
-                      <img
+                    <div key={index} className="relative w-full h-32">
+                      <Image
                         src={url}
                         alt={`Preview ${index + 1}`}
-                        className="w-full h-32 object-cover rounded-lg"
+                        fill
+                        className="object-cover rounded-lg"
                       />
                       <button
                         type="button"
