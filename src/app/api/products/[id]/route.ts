@@ -1,20 +1,23 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth';
 import connectDB from '@/lib/db/mongodb';
 import { Product } from '@/lib/models/Product';
 import { Company } from '@/lib/models/Company';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/authOptions';
 
 export async function GET(
-  request: Request,
+  _request: NextRequest, // Renamed to _request to avoid unused variable warning
   { params }: { params: { id: string } }
 ) {
   try {
     // If session is not used for GET requests, simply call it without assignment.
     await getServerSession(authOptions);
-    
+
     await connectDB();
-    const product = await Product.findById(params.id).populate('company', 'name logo');
+    const product = await Product.findById(params.id).populate(
+      'company',
+      'name logo'
+    );
 
     if (!product) {
       return NextResponse.json({ message: 'Product not found' }, { status: 404 });
@@ -35,12 +38,12 @@ export async function GET(
 }
 
 export async function PUT(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
       return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
     }
