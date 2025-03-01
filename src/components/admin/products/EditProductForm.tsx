@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Trash2, Upload, X } from 'lucide-react';
-// Removed unused import of SolarPanel
+import Image from 'next/image';
 
 interface EditProductFormProps {
   productId: string;
@@ -37,8 +37,9 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [features, setFeatures] = useState<string[]>(['']);
+  // Mark imageFiles as unused.
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
 
@@ -75,7 +76,7 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
 
         setProductData({
           ...data,
-          company: data.company?.name || '', // Use company name directly
+          company: data.company?.name || '',
           price: data.price?.toString() || '',
           specifications: {
             ...data.specifications,
@@ -192,10 +193,7 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
         throw new Error(data.message || 'Failed to update product');
       }
 
-      // First navigate
       await router.push('/admin/products');
-
-      // Then refresh
       router.refresh();
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -216,12 +214,9 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
         {/* Basic Information */}
         <div className="space-y-6">
           <h2 className="text-2xl font-semibold text-gray-900 pb-2 border-b">Basic Information</h2>
-
           <div className="grid grid-cols-1 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Product Name
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
               <input
                 type="text"
                 value={productData.name}
@@ -230,11 +225,8 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
                 required
               />
             </div>
-
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Company
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Company</label>
               <input
                 type="text"
                 value={productData.company}
@@ -243,11 +235,8 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
                 required
               />
             </div>
-
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Price (₹)
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Price (₹)</label>
               <input
                 type="number"
                 value={productData.price}
@@ -262,18 +251,20 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
         {/* Images Section */}
         <div className="space-y-6">
           <h2 className="text-2xl font-semibold text-gray-900 pb-2 border-b">Product Images</h2>
-
           {existingImages.length > 0 && (
             <div>
               <h3 className="text-lg font-medium text-gray-700 mb-4">Existing Images</h3>
               <div className="grid grid-cols-3 gap-4">
                 {existingImages.map((url, index) => (
                   <div key={index} className="relative">
-                    <img
-                      src={url}
-                      alt={`Product ${index + 1}`}
-                      className="w-full h-32 object-cover rounded-lg"
-                    />
+                    <div className="relative w-full h-32">
+                      <Image
+                        src={url}
+                        alt={`Product ${index + 1}`}
+                        fill
+                        className="object-cover rounded-lg"
+                      />
+                    </div>
                     <button
                       type="button"
                       onClick={() => removeImage(index, 'existing')}
@@ -288,9 +279,7 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Add New Images
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Add New Images</label>
             <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
               <div className="space-y-1 text-center">
                 <Upload className="mx-auto h-12 w-12 text-gray-400" />
@@ -320,11 +309,14 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
             <div className="grid grid-cols-3 gap-4 mt-4">
               {imageUrls.map((url, index) => (
                 <div key={index} className="relative">
-                  <img
-                    src={url}
-                    alt={`New ${index + 1}`}
-                    className="w-full h-32 object-cover rounded-lg"
-                  />
+                  <div className="relative w-full h-32">
+                    <Image
+                      src={url}
+                      alt={`New ${index + 1}`}
+                      fill
+                      className="object-cover rounded-lg"
+                    />
+                  </div>
                   <button
                     type="button"
                     onClick={() => removeImage(index, 'new')}
@@ -366,12 +358,9 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
         {/* Specifications Section */}
         <div className="space-y-6">
           <h2 className="text-2xl font-semibold text-gray-900 pb-2 border-b">Specifications</h2>
-
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Wattage (W)
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Wattage (W)</label>
               <input
                 type="number"
                 value={productData.specifications.wattage}
@@ -388,11 +377,8 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
                 required
               />
             </div>
-
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Efficiency (%)
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Efficiency (%)</label>
               <input
                 type="text"
                 value={productData.specifications.efficiency}
@@ -409,11 +395,8 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
                 required
               />
             </div>
-
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Type
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
               <select
                 value={productData.specifications.type}
                 onChange={(e) =>
@@ -433,11 +416,8 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
                 <option value="Thin-Film">Thin-Film</option>
               </select>
             </div>
-
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Warranty
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Warranty</label>
               <input
                 type="text"
                 value={productData.specifications.warranty}
@@ -455,12 +435,9 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
               />
             </div>
           </div>
-
           <div className="grid grid-cols-3 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Length (mm)
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Length (mm)</label>
               <input
                 type="number"
                 value={productData.specifications.dimensions.length}
@@ -480,11 +457,8 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
                 required
               />
             </div>
-
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Width (mm)
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Width (mm)</label>
               <input
                 type="number"
                 value={productData.specifications.dimensions.width}
@@ -504,11 +478,8 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
                 required
               />
             </div>
-
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Height (mm)
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Height (mm)</label>
               <input
                 type="number"
                 value={productData.specifications.dimensions.height}
@@ -529,11 +500,8 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
               />
             </div>
           </div>
-
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Weight (kg)
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Weight (kg)</label>
             <input
               type="number"
               value={productData.specifications.weight}
@@ -555,11 +523,8 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
         {/* Product Details */}
         <div className="space-y-6">
           <h2 className="text-2xl font-semibold text-gray-900 pb-2 border-b">Product Details</h2>
-
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Description
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
             <textarea
               value={productData.description}
               onChange={(e) => setProductData({ ...productData, description: e.target.value })}
@@ -568,11 +533,8 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
               required
             />
           </div>
-
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Stock
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Stock</label>
             <input
               type="number"
               value={productData.stock}
@@ -581,7 +543,6 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
               required
             />
           </div>
-
           <div className="flex items-center space-x-3">
             <input
               type="checkbox"
@@ -594,9 +555,7 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
               }
               className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
-            <label className="text-sm font-medium text-gray-700">
-              Installation Available
-            </label>
+            <label className="text-sm font-medium text-gray-700">Installation Available</label>
           </div>
         </div>
 
