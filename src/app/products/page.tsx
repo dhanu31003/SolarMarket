@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { Filter, Plus } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 interface Product {
@@ -33,36 +32,35 @@ export default function ProductsPage() {
     maxPrice: '',
     type: '',
     minWattage: '',
-    maxWattage: ''
+    maxWattage: '',
   });
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const router = useRouter();
-
-  const fetchProducts = async () => {
-    try {
-      const params = new URLSearchParams({
-        page: page.toString(),
-        limit: '12',
-        ...filters
-      });
-      const response = await fetch(`/api/products?${params}`);
-      const data = await response.json();
-      setProducts(data.products);
-      setTotalPages(data.pagination.pages);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const params = new URLSearchParams({
+          page: page.toString(),
+          limit: '12',
+          ...filters,
+        });
+        const response = await fetch(`/api/products?${params}`);
+        const data = await response.json();
+        setProducts(data.products);
+        setTotalPages(data.pagination.pages);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchProducts();
   }, [page, filters]);
 
   const handleFilterChange = (field: string, value: string) => {
-    setFilters(prev => ({ ...prev, [field]: value }));
+    setFilters((prev) => ({ ...prev, [field]: value }));
     setPage(1);
   };
 
@@ -73,7 +71,7 @@ export default function ProductsPage() {
       maxPrice: '',
       type: '',
       minWattage: '',
-      maxWattage: ''
+      maxWattage: '',
     });
     setPage(1);
   };
