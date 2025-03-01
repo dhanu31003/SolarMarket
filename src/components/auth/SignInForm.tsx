@@ -33,7 +33,7 @@ const SignInForm = () => {
         router.push('/');
         router.refresh();
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Sign in error:', error);
       setError('An error occurred during sign in');
     } finally {
@@ -101,8 +101,13 @@ const SignInForm = () => {
         </div>
 
         <div className="text-sm text-center">
-          <Link href="/auth/signup" replace prefetch={false} className="font-medium text-blue-600 hover:text-blue-500">
-            Don't have an account? Sign up
+          <Link
+            href="/auth/signup"
+            replace
+            prefetch={false}
+            className="font-medium text-blue-600 hover:text-blue-500"
+          >
+            Don&apos;t have an account? Sign up
           </Link>
         </div>
       </form>

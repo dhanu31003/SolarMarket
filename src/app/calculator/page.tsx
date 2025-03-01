@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Sun,
   DollarSign,
@@ -14,7 +14,6 @@ import {
 } from 'lucide-react';
 
 const SolarCalculator = () => {
-  // Removed unused router variable and its import
   // Form state with proper TypeScript types
   const [formData, setFormData] = useState({
     monthlyBill: 3000,
@@ -346,9 +345,7 @@ CO2 Reduction: ${results.co2Reduction} tonnes/year%0A
                 <div className="pt-6">
                   <button
                     onClick={calculateResults}
-                    disabled={
-                      loading || !formData.name || !formData.email || !formData.phone
-                    }
+                    disabled={loading || !formData.name || !formData.email || !formData.phone}
                     className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                   >
                     {loading ? (

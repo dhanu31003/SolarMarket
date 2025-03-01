@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Trash2, Upload, X } from 'lucide-react';
-import type { SolarPanel } from '@/lib/types/product';
+// Removed unused import of SolarPanel
 
 interface EditProductFormProps {
   productId: string;
@@ -37,7 +37,8 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [features, setFeatures] = useState<string[]>(['']);
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  // Renamed imageFiles to _imageFiles to indicate it's intentionally not read directly.
+  const [_imageFiles, setImageFiles] = useState<File[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
 
@@ -53,15 +54,15 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
       dimensions: {
         length: '',
         width: '',
-        height: ''
+        height: '',
       },
-      weight: '0'
+      weight: '0',
     },
     description: '',
     stock: '',
     installationAvailable: true,
     features: [''],
-    status: 'active'
+    status: 'active',
   });
 
   useEffect(() => {
@@ -69,12 +70,12 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
       try {
         const response = await fetch(`/api/products/${productId}`);
         const data = await response.json();
-        
+
         if (!response.ok) throw new Error(data.message || 'Failed to fetch product');
-        
+
         setProductData({
           ...data,
-          company: data.company?.name || '', // Changed to use company name directly
+          company: data.company?.name || '', // Use company name directly
           price: data.price?.toString() || '',
           specifications: {
             ...data.specifications,
@@ -84,14 +85,14 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
               width: data.specifications?.dimensions?.width?.toString() || '',
               height: data.specifications?.dimensions?.height?.toString() || '',
             },
-            weight: data.specifications?.weight?.toString() || '0'
+            weight: data.specifications?.weight?.toString() || '0',
           },
-          stock: data.stock?.toString() || ''
+          stock: data.stock?.toString() || '',
         });
-        
+
         setFeatures(data.features || ['']);
         setExistingImages(data.images || []);
-      } catch (error) {
+      } catch (error: unknown) {
         console.error('Error fetching product:', error);
         setError('Failed to fetch product details');
       }
@@ -105,7 +106,7 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
     if (!files) return;
 
     const newFiles = Array.from(files);
-    setImageFiles(prev => [...prev, ...newFiles]);
+    setImageFiles((prev) => [...prev, ...newFiles]);
 
     for (const file of newFiles) {
       const formData = new FormData();
@@ -122,8 +123,8 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
         }
 
         const data = await response.json();
-        setImageUrls(prev => [...prev, data.url]);
-      } catch (error) {
+        setImageUrls((prev) => [...prev, data.url]);
+      } catch (error: unknown) {
         console.error('Error uploading image:', error);
         setError('Failed to upload one or more images');
       }
@@ -132,10 +133,10 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
 
   const removeImage = (index: number, type: 'new' | 'existing') => {
     if (type === 'new') {
-      setImageUrls(prev => prev.filter((_, i) => i !== index));
-      setImageFiles(prev => prev.filter((_, i) => i !== index));
+      setImageUrls((prev) => prev.filter((_, i) => i !== index));
+      setImageFiles((prev) => prev.filter((_, i) => i !== index));
     } else {
-      setExistingImages(prev => prev.filter((_, i) => i !== index));
+      setExistingImages((prev) => prev.filter((_, i) => i !== index));
     }
   };
 
@@ -158,7 +159,7 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
     e.preventDefault();
     setLoading(true);
     setError('');
-  
+
     try {
       const formattedData = {
         ...productData,
@@ -171,13 +172,13 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
             length: Number(productData.specifications.dimensions.length),
             width: Number(productData.specifications.dimensions.width),
             height: Number(productData.specifications.dimensions.height),
-          }
+          },
         },
         stock: Number(productData.stock),
-        features: features.filter(feature => feature.trim() !== ''),
-        images: [...existingImages, ...imageUrls]
+        features: features.filter((feature) => feature.trim() !== ''),
+        images: [...existingImages, ...imageUrls],
       };
-  
+
       const response = await fetch(`/api/products/${productId}`, {
         method: 'PUT',
         headers: {
@@ -185,20 +186,23 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
         },
         body: JSON.stringify(formattedData),
       });
-  
+
       if (!response.ok) {
         const data = await response.json();
         throw new Error(data.message || 'Failed to update product');
       }
-  
+
       // First navigate
       await router.push('/admin/products');
-      
+
       // Then refresh
       router.refresh();
-  
-    } catch (error: any) {
-      setError(error.message || 'Error updating product');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(error.message || 'Error updating product');
+      } else {
+        setError('Error updating product');
+      }
     } finally {
       setLoading(false);
     }
@@ -207,12 +211,12 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
   return (
     <div className="max-w-4xl mx-auto px-4">
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Edit Product</h1>
-      
+
       <form onSubmit={handleSubmit} className="space-y-8 bg-white rounded-xl shadow-sm p-8">
         {/* Basic Information */}
         <div className="space-y-6">
           <h2 className="text-2xl font-semibold text-gray-900 pb-2 border-b">Basic Information</h2>
-          
+
           <div className="grid grid-cols-1 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -221,7 +225,7 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
               <input
                 type="text"
                 value={productData.name}
-                onChange={(e) => setProductData({...productData, name: e.target.value})}
+                onChange={(e) => setProductData({ ...productData, name: e.target.value })}
                 className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               />
@@ -234,7 +238,7 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
               <input
                 type="text"
                 value={productData.company}
-                onChange={(e) => setProductData({...productData, company: e.target.value})}
+                onChange={(e) => setProductData({ ...productData, company: e.target.value })}
                 className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               />
@@ -247,7 +251,7 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
               <input
                 type="number"
                 value={productData.price}
-                onChange={(e) => setProductData({...productData, price: e.target.value})}
+                onChange={(e) => setProductData({ ...productData, price: e.target.value })}
                 className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               />
@@ -255,11 +259,10 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
           </div>
         </div>
 
-        {/* Rest of the form remains the same */}
         {/* Images Section */}
         <div className="space-y-6">
           <h2 className="text-2xl font-semibold text-gray-900 pb-2 border-b">Product Images</h2>
-          
+
           {existingImages.length > 0 && (
             <div>
               <h3 className="text-lg font-medium text-gray-700 mb-4">Existing Images</h3>
@@ -292,7 +295,10 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
               <div className="space-y-1 text-center">
                 <Upload className="mx-auto h-12 w-12 text-gray-400" />
                 <div className="flex text-sm text-gray-600">
-                  <label htmlFor="images" className="relative cursor-pointer rounded-md bg-white font-medium text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 hover:text-blue-500">
+                  <label
+                    htmlFor="images"
+                    className="relative cursor-pointer rounded-md bg-white font-medium text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 hover:text-blue-500"
+                  >
                     <span>Upload files</span>
                     <input
                       id="images"
@@ -360,7 +366,7 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
         {/* Specifications Section */}
         <div className="space-y-6">
           <h2 className="text-2xl font-semibold text-gray-900 pb-2 border-b">Specifications</h2>
-          
+
           <div className="grid grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -369,13 +375,15 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
               <input
                 type="number"
                 value={productData.specifications.wattage}
-                onChange={(e) => setProductData({
-                  ...productData,
-                  specifications: {
-                    ...productData.specifications,
-                    wattage: e.target.value
-                  }
-                })}
+                onChange={(e) =>
+                  setProductData({
+                    ...productData,
+                    specifications: {
+                      ...productData.specifications,
+                      wattage: e.target.value,
+                    },
+                  })
+                }
                 className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               />
@@ -388,13 +396,15 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
               <input
                 type="text"
                 value={productData.specifications.efficiency}
-                onChange={(e) => setProductData({
-                  ...productData,
-                  specifications: {
-                    ...productData.specifications,
-                    efficiency: e.target.value
-                  }
-                })}
+                onChange={(e) =>
+                  setProductData({
+                    ...productData,
+                    specifications: {
+                      ...productData.specifications,
+                      efficiency: e.target.value,
+                    },
+                  })
+                }
                 className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               />
@@ -406,13 +416,15 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
               </label>
               <select
                 value={productData.specifications.type}
-                onChange={(e) => setProductData({
-                  ...productData,
-                  specifications: {
-                    ...productData.specifications,
-                    type: e.target.value as 'Monocrystalline' | 'Polycrystalline' | 'Thin-Film'
-                  }
-                })}
+                onChange={(e) =>
+                  setProductData({
+                    ...productData,
+                    specifications: {
+                      ...productData.specifications,
+                      type: e.target.value as 'Monocrystalline' | 'Polycrystalline' | 'Thin-Film',
+                    },
+                  })
+                }
                 className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               >
@@ -429,13 +441,15 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
               <input
                 type="text"
                 value={productData.specifications.warranty}
-                onChange={(e) => setProductData({
-                  ...productData,
-                  specifications: {
-                    ...productData.specifications,
-                    warranty: e.target.value
-                  }
-                })}
+                onChange={(e) =>
+                  setProductData({
+                    ...productData,
+                    specifications: {
+                      ...productData.specifications,
+                      warranty: e.target.value,
+                    },
+                  })
+                }
                 className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               />
@@ -450,16 +464,18 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
               <input
                 type="number"
                 value={productData.specifications.dimensions.length}
-                onChange={(e) => setProductData({
-                  ...productData,
-                  specifications: {
-                    ...productData.specifications,
-                    dimensions: {
-                      ...productData.specifications.dimensions,
-                      length: e.target.value
-                    }
-                  }
-                })}
+                onChange={(e) =>
+                  setProductData({
+                    ...productData,
+                    specifications: {
+                      ...productData.specifications,
+                      dimensions: {
+                        ...productData.specifications.dimensions,
+                        length: e.target.value,
+                      },
+                    },
+                  })
+                }
                 className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               />
@@ -472,16 +488,18 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
               <input
                 type="number"
                 value={productData.specifications.dimensions.width}
-                onChange={(e) => setProductData({
-                  ...productData,
-                  specifications: {
-                    ...productData.specifications,
-                    dimensions: {
-                      ...productData.specifications.dimensions,
-                      width: e.target.value
-                    }
-                  }
-                })}
+                onChange={(e) =>
+                  setProductData({
+                    ...productData,
+                    specifications: {
+                      ...productData.specifications,
+                      dimensions: {
+                        ...productData.specifications.dimensions,
+                        width: e.target.value,
+                      },
+                    },
+                  })
+                }
                 className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               />
@@ -494,16 +512,18 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
               <input
                 type="number"
                 value={productData.specifications.dimensions.height}
-                onChange={(e) => setProductData({
-                  ...productData,
-                  specifications: {
-                    ...productData.specifications,
-                    dimensions: {
-                      ...productData.specifications.dimensions,
-                      height: e.target.value
-                    }
-                  }
-                })}
+                onChange={(e) =>
+                  setProductData({
+                    ...productData,
+                    specifications: {
+                      ...productData.specifications,
+                      dimensions: {
+                        ...productData.specifications.dimensions,
+                        height: e.target.value,
+                      },
+                    },
+                  })
+                }
                 className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               />
@@ -517,13 +537,15 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
             <input
               type="number"
               value={productData.specifications.weight}
-              onChange={(e) => setProductData({
-                ...productData,
-                specifications: {
-                  ...productData.specifications,
-                  weight: e.target.value
-                }
-              })}
+              onChange={(e) =>
+                setProductData({
+                  ...productData,
+                  specifications: {
+                    ...productData.specifications,
+                    weight: e.target.value,
+                  },
+                })
+              }
               className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             />
@@ -533,14 +555,14 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
         {/* Product Details */}
         <div className="space-y-6">
           <h2 className="text-2xl font-semibold text-gray-900 pb-2 border-b">Product Details</h2>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Description
             </label>
             <textarea
               value={productData.description}
-              onChange={(e) => setProductData({...productData, description: e.target.value})}
+              onChange={(e) => setProductData({ ...productData, description: e.target.value })}
               className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               rows={4}
               required
@@ -554,7 +576,7 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
             <input
               type="number"
               value={productData.stock}
-              onChange={(e) => setProductData({...productData, stock: e.target.value})}
+              onChange={(e) => setProductData({ ...productData, stock: e.target.value })}
               className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             />
@@ -564,10 +586,12 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
             <input
               type="checkbox"
               checked={productData.installationAvailable}
-              onChange={(e) => setProductData({
-                ...productData,
-                installationAvailable: e.target.checked
-              })}
+              onChange={(e) =>
+                setProductData({
+                  ...productData,
+                  installationAvailable: e.target.checked,
+                })
+              }
               className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <label className="text-sm font-medium text-gray-700">
