@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { X } from 'lucide-react';
 
 interface Product {
@@ -36,27 +37,24 @@ export default function CompareProducts() {
     const fetchProducts = async () => {
       try {
         const compareList = JSON.parse(localStorage.getItem('compareList') || '[]');
-        
         if (compareList.length === 0) {
-            setLoading(false);
-            return;
+          setLoading(false);
+          return;
+        }
+        const productPromises = compareList.map(async (id: string) => {
+          try {
+            const response = await fetch('/api/products/' + id);
+            return await response.json();
+          } catch (error) {
+            console.error(`Error fetching product ${id}:`, error);
+            return null;
           }
-          
-          const productPromises = compareList.map(async (id: string) => {
-            try {
-              const response = await fetch('/api/products/' + id);
-              return await response.json();
-            } catch (error) {
-              console.error(`Error fetching product ${id}:`, error);
-              return null;
-            }
-          });
-          
+        });
         const fetchedProducts = (await Promise.all(productPromises)).filter(Boolean);
         setProducts(fetchedProducts);
-        setLoading(false);
       } catch (error) {
         console.error('Error fetching products:', error);
+      } finally {
         setLoading(false);
       }
     };
@@ -116,10 +114,11 @@ export default function CompareProducts() {
                         <X className="w-4 h-4" />
                       </button>
                       <div className="relative w-full pt-[75%] bg-gray-100 rounded-lg mb-4">
-                        <img
+                        <Image
                           src={product.images[0] || '/placeholder.jpg'}
                           alt={product.name}
-                          className="absolute top-0 left-0 w-full h-full object-contain p-4"
+                          fill
+                          className="object-contain p-4"
                         />
                       </div>
                       <h3 className="font-semibold text-lg">{product.name}</h3>

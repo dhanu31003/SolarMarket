@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { Filter, Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 interface Product {
   _id: string;
@@ -35,6 +37,7 @@ export default function ProductsPage() {
   });
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const router = useRouter();
 
   const fetchProducts = async () => {
     try {
@@ -43,15 +46,13 @@ export default function ProductsPage() {
         limit: '12',
         ...filters
       });
-
       const response = await fetch(`/api/products?${params}`);
       const data = await response.json();
-      
       setProducts(data.products);
       setTotalPages(data.pagination.pages);
-      setLoading(false);
     } catch (error) {
       console.error('Error fetching products:', error);
+    } finally {
       setLoading(false);
     }
   };
@@ -99,7 +100,7 @@ export default function ProductsPage() {
               {showFilters ? 'Hide Filters' : 'Show Filters'}
             </button>
           </div>
-          
+
           {session?.user?.role === 'admin' && (
             <Link
               href="/admin/products/add"
@@ -166,10 +167,11 @@ export default function ProductsPage() {
             <Link href={`/products/${product._id}`} key={product._id} className="block">
               <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden h-80">
                 <div className="relative h-2/3 bg-gray-100">
-                  <img
+                  <Image
                     src={product.images[0] || '/placeholder.jpg'}
                     alt={product.name}
-                    className="absolute top-0 left-0 w-full h-full object-contain p-2 sm:p-4"
+                    fill
+                    className="object-contain p-2 sm:p-4"
                   />
                 </div>
                 <div className="p-2 sm:p-4 h-1/3">

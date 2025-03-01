@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function AddProductPage() {
@@ -14,7 +14,9 @@ export default function AddProductPage() {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setProductData(prevState => ({
       ...prevState,
@@ -43,8 +45,12 @@ export default function AddProductPage() {
       }
 
       router.push('/products');
-    } catch (error: any) {
-      setError(error.message || 'Error adding product');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(error.message || 'Error adding product');
+      } else {
+        setError('Error adding product');
+      }
     } finally {
       setLoading(false);
     }

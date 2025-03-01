@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import Image from 'next/image';
 import { Plus, MapPin, Star, Phone, Mail } from 'lucide-react';
 
 interface Company {
@@ -41,28 +42,25 @@ export default function CompaniesPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const fetchCompanies = async () => {
-    try {
-      const params = new URLSearchParams({
-        page: page.toString(),
-        limit: '8',
-        ...filters
-      });
-
-      const response = await fetch(`/api/companies?${params}`);
-      const data = await response.json();
-      
-      setCompanies(data.companies);
-      setTotalPages(data.pagination.pages);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching companies:', error);
-      setLoading(false);
-    }
-  };
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const params = new URLSearchParams({
+          page: page.toString(),
+          limit: '8',
+          ...filters
+        });
+        const response = await fetch(`/api/companies?${params}`);
+        const data = await response.json();
+        setCompanies(data.companies);
+        setTotalPages(data.pagination.pages);
+      } catch (error) {
+        console.error('Error fetching companies:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchCompanies();
   }, [page, filters]);
 
@@ -127,11 +125,12 @@ export default function CompaniesPage() {
           {companies.map((company) => (
             <Link href={`/companies/${company._id}`} key={company._id} className="block h-full">
               <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 h-full p-6">
-                <div className="relative h-32 bg-gray-100 rounded-lg mb-4 flex items-center justify-center p-4">
-                  <img
+                <div className="relative h-32 bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
+                  <Image
                     src={company.logo || '/placeholder.jpg'}
                     alt={company.name}
-                    className="max-h-full object-contain"
+                    fill
+                    className="object-contain"
                   />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">{company.name}</h3>
