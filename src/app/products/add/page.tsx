@@ -1,5 +1,7 @@
+'use client';
+
 import React, { useState } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 export default function AddProductPage() {
   const [productData, setProductData] = useState({
@@ -31,7 +33,7 @@ export default function AddProductPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include',  // Add this line
+        credentials: 'include',
         body: JSON.stringify(productData),
       });
 
