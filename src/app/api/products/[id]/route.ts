@@ -10,18 +10,14 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    // Session is not used, so we prefix it with an underscore.
-    const _session = await getServerSession(authOptions);
+    // If session is not used for GET requests, simply call it without assignment.
+    await getServerSession(authOptions);
     
-    // Allow GET requests without authentication
     await connectDB();
     const product = await Product.findById(params.id).populate('company', 'name logo');
 
     if (!product) {
-      return NextResponse.json(
-        { message: 'Product not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ message: 'Product not found' }, { status: 404 });
     }
 
     return NextResponse.json(product);
@@ -46,10 +42,7 @@ export async function PUT(
     const session = await getServerSession(authOptions);
     
     if (!session?.user) {
-      return NextResponse.json(
-        { message: 'Not authenticated' },
-        { status: 401 }
-      );
+      return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
     }
 
     await connectDB();
@@ -73,44 +66,28 @@ export async function PUT(
       data.company = company._id;
     }
 
-    // Prefixing unused variables with an underscore to resolve the ESLint errors.
-    const {
-      cartId: _cartId, 
-      cartQuantity: _cartQuantity, 
-      inCart: _inCart,
-      ...cleanedData
-    } = data;
+    // Disable ESLint for unused destructured variables
+    /* eslint-disable @typescript-eslint/no-unused-vars */
+    const { cartId, cartQuantity, inCart, ...cleanedData } = data;
+    /* eslint-enable @typescript-eslint/no-unused-vars */
 
     const product = await Product.findByIdAndUpdate(
       params.id,
       { $set: cleanedData },
-      { 
-        new: true,
-        runValidators: true
-      }
+      { new: true, runValidators: true }
     ).populate('company', 'name logo');
 
     if (!product) {
-      return NextResponse.json(
-        { message: 'Product not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ message: 'Product not found' }, { status: 404 });
     }
 
-    return NextResponse.json({
-      success: true,
-      product
-    });
-
+    return NextResponse.json({ success: true, product });
   } catch (error: unknown) {
     console.error('Error updating product:', error);
     let errorMessage = 'Error updating product';
     if (error instanceof Error) {
       errorMessage = error.message || 'Error updating product';
     }
-    return NextResponse.json(
-      { message: errorMessage },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: errorMessage }, { status: 500 });
   }
 }
