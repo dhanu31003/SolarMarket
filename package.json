@@ -26,6 +26,9 @@
   "scripts":{
     "postinstall": "prisma generate"
   },
+  "prisma": {
+  "schema": "db/schema.prisma"
+  },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@types/node": "^20",
