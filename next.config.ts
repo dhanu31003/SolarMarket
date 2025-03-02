@@ -1,11 +1,10 @@
-import type { NextConfig } from "next";
+import { NextConfig } from "next";
 
+/** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
-  }
-};
-module.exports = {
+  },
   async redirects() {
     return [
       {
@@ -17,4 +16,4 @@ module.exports = {
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
