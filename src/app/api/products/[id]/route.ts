@@ -5,16 +5,16 @@ import { Product } from '@/lib/models/Product';
 import { Company } from '@/lib/models/Company';
 import { authOptions } from '@/lib/authOptions';
 
-export async function GET(request: NextRequest, context: any) {
+export async function GET(request: NextRequest, context: unknown): Promise<NextResponse> {
+  // Cast context to the expected type
+  const { params } = context as { params: { id: string } };
+
   try {
     // If session is not used for GET requests, simply call it without assignment.
     await getServerSession(authOptions);
 
     await connectDB();
-    const product = await Product.findById(context.params.id).populate(
-      'company',
-      'name logo'
-    );
+    const product = await Product.findById(params.id).populate('company', 'name logo');
 
     if (!product) {
       return NextResponse.json({ message: 'Product not found' }, { status: 404 });
@@ -34,7 +34,10 @@ export async function GET(request: NextRequest, context: any) {
   }
 }
 
-export async function PUT(request: NextRequest, context: any) {
+export async function PUT(request: NextRequest, context: unknown): Promise<NextResponse> {
+  // Cast context to the expected type
+  const { params } = context as { params: { id: string } };
+
   try {
     const session = await getServerSession(authOptions);
 
@@ -69,7 +72,7 @@ export async function PUT(request: NextRequest, context: any) {
     /* eslint-enable @typescript-eslint/no-unused-vars */
 
     const product = await Product.findByIdAndUpdate(
-      context.params.id,
+      params.id,
       { $set: cleanedData },
       { new: true, runValidators: true }
     ).populate('company', 'name logo');
