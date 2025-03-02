@@ -5,14 +5,7 @@ import { Product } from '@/lib/models/Product';
 import { Company } from '@/lib/models/Company';
 import { authOptions } from '@/lib/authOptions';
 
-// Define a custom type for the route context
-type ProductRouteContext = {
-  params: {
-    id: string;
-  };
-};
-
-export async function GET(request: NextRequest, context: ProductRouteContext) {
+export async function GET(request: NextRequest, context: any) {
   try {
     // If session is not used for GET requests, simply call it without assignment.
     await getServerSession(authOptions);
@@ -41,7 +34,7 @@ export async function GET(request: NextRequest, context: ProductRouteContext) {
   }
 }
 
-export async function PUT(request: NextRequest, context: ProductRouteContext) {
+export async function PUT(request: NextRequest, context: any) {
   try {
     const session = await getServerSession(authOptions);
 
