@@ -1,20 +1,24 @@
-import { NextResponse, NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import connectDB from '@/lib/db/mongodb';
 import { Product } from '@/lib/models/Product';
 import { Company } from '@/lib/models/Company';
 import { authOptions } from '@/lib/authOptions';
 
-export async function GET(
-  _request: NextRequest, // Renamed to _request to avoid unused variable warning
-  { params }: { params: { id: string } }
-) {
+// Define a custom type for the route context
+type ProductRouteContext = {
+  params: {
+    id: string;
+  };
+};
+
+export async function GET(request: NextRequest, context: ProductRouteContext) {
   try {
     // If session is not used for GET requests, simply call it without assignment.
     await getServerSession(authOptions);
 
     await connectDB();
-    const product = await Product.findById(params.id).populate(
+    const product = await Product.findById(context.params.id).populate(
       'company',
       'name logo'
     );
@@ -37,10 +41,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest, context: ProductRouteContext) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -75,7 +76,7 @@ export async function PUT(
     /* eslint-enable @typescript-eslint/no-unused-vars */
 
     const product = await Product.findByIdAndUpdate(
-      params.id,
+      context.params.id,
       { $set: cleanedData },
       { new: true, runValidators: true }
     ).populate('company', 'name logo');
