@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function AdminLayout({
   children,
@@ -11,12 +11,25 @@ export default function AdminLayout({
 }) {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
+    // Only check authorization once the session is loaded
     if (status === 'loading') return;
 
-    if (!session || session.user?.role !== 'admin') {
+    // For debugging - log what session we have
+    console.log('Admin layout session:', session);
+    
+    if (!session) {
+      // If no session, redirect to login
       router.replace('/auth/signin');
+    } else if (session.user?.role !== 'admin') {
+      // If session exists but user is not admin, redirect with error message
+      console.log('Not an admin user:', session.user);
+      router.replace('/auth/signin?error=You must be an admin to access this page');
+    } else {
+      // User is authenticated and is an admin
+      setIsAuthorized(true);
     }
   }, [session, status, router]);
 
@@ -28,16 +41,12 @@ export default function AdminLayout({
     );
   }
 
-  // Additional check for admin role
-  if (!session?.user?.role || session.user.role !== 'admin') {
-    return null;
-  }
-
-  return (
+  // Only render children if user is authorized
+  return isAuthorized ? (
     <div className="min-h-screen bg-gray-100">
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         {children}
       </div>
     </div>
-  );
+  ) : null;
 }
