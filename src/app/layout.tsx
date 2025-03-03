@@ -21,9 +21,9 @@ export default function Layout({ children }: LayoutProps) {
           <CartProvider>
             <Header />
             <title> Affordable Solar Panels with PM Modi Subsidy</title>
-            <link rel="icon" href="/favicon.ico" type="image/x-icon">
             <meta name="description" content="Find the best solar panels at SolarMarket. Get up to ₹80,000 subsidy under PM Modi's solar scheme. Compare prices, check specifications, and order online." />
             <meta name="keywords" content="solar panels, PM Modi solar subsidy, solar energy India, Solar Agency, Best Deals" />
+            <link rel="icon" href="/favicon.ico" type="image/x-icon" />
             {children}
           </CartProvider>
         </AuthProvider>
